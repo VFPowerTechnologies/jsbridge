@@ -85,7 +85,10 @@ Dispatcher.prototype.sendValue = function (callbackId, isError, value) {
     console.log("Received " + value + " for callbackId=" + callbackId)
 
     //TODO if a listener, reject can be null, so maybe check and emit a warning?
-    var [resolve, reject, remove] = this._callbacks[callbackId];
+    var r = this._callbacks[callbackId];
+    var resolve = r[0];
+    var reject = r[1];
+    var remove = r[2];
     if (remove)
         delete this._callbacks[callbackId];
 
