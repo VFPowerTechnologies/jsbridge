@@ -13,6 +13,7 @@ import javafx.scene.control.Button
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
 import netscape.javascript.JSObject
@@ -30,32 +31,7 @@ class App : Application() {
 
         val engine = webview.engine
 
-        val objectMapper = ObjectMapper()
-
-        val debugger = engine.impl_getDebugger()
-        debugger.isEnabled = true
-        val jsLog = LoggerFactory.getLogger("Javascript")
-        debugger.setMessageCallback { msg ->
-            val root = objectMapper.readTree(msg)
-            if (root.has("method")) {
-                val method = root.get("method").asText()
-                if (method == "Console.messageAdded") {
-                    val message = objectMapper.convertValue(root.get("params"), ConsoleMessageAdded::class.java).message
-                    val level = message.level
-                    val text = "[{}:{}] {}"
-                    val args = arrayOf(message.url, message.line, message.text)
-                    if (level == "log")
-                        jsLog.info(text, *args)
-                    else if (level == "error")
-                        jsLog.error(text, *args)
-                    else
-                        println("Unknown level: $level")
-
-                }
-            }
-            null
-        }
-        debugger.sendMessage("{\"id\": 1, \"method\": \"Console.enable\"}")
+        enableDebugger(engine)
 
         val dispatcher = Dispatcher(engine)
 
@@ -87,6 +63,35 @@ class App : Application() {
 
         primaryStage.scene = Scene(vb, 852.0, 480.0)
         primaryStage.show()
+    }
+
+    private fun enableDebugger(engine: WebEngine) {
+        val objectMapper = ObjectMapper()
+
+        val debugger = engine.impl_getDebugger()
+        debugger.isEnabled = true
+        val jsLog = LoggerFactory.getLogger("Javascript")
+        debugger.setMessageCallback { msg ->
+            val root = objectMapper.readTree(msg)
+            if (root.has("method")) {
+                val method = root.get("method").asText()
+                if (method == "Console.messageAdded") {
+                    val message = objectMapper.convertValue(root.get("params"), ConsoleMessageAdded::class.java).message
+                    val level = message.level
+                    val text = "[{}:{}] {}"
+                    val args = arrayOf(message.url, message.line, message.text)
+                    if (level == "log")
+                        jsLog.info(text, *args)
+                    else if (level == "error")
+                        jsLog.error(text, *args)
+                    else
+                        println("Unknown level: $level")
+
+                }
+            }
+            null
+        }
+        debugger.sendMessage("{\"id\": 1, \"method\": \"Console.enable\"}")
     }
 
     companion object {
