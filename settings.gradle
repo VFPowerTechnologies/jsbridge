@@ -2,3 +2,4 @@ rootProject.name = 'js-bridge'
 
 include 'core'
 include 'desktop'
+include 'android'
