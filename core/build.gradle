@@ -10,6 +10,9 @@ buildscript {
 
 apply plugin: 'kotlin'
 
+//since we need to share the generated classes with android, which can't handle 1.8 classes
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 ext {
     jacksonVersion = '2.6.4'
     slf4jVersion = "1.7.13"
