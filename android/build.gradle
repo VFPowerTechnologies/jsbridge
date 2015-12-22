@@ -25,9 +25,16 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        main.assets.srcDirs += "$rootProject.projectDir/web"
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
     }
 }
 
 dependencies {
     compile 'org.slf4j:slf4j-android:1.7.13'
+    compile project(':core')
 }
