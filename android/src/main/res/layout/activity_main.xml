@@ -12,7 +12,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/webview"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true" android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"/>
+            android:layout_alignParentEnd="true" android:layout_above="@+id/notifyBtn"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notify"
+            android:id="@+id/notifyBtn" android:layout_alignParentBottom="true" android:layout_alignParentStart="true"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Call JS"
+            android:id="@+id/callBtn"
+            android:layout_alignParentBottom="true" android:layout_alignEnd="@+id/webview"/>
 </RelativeLayout>

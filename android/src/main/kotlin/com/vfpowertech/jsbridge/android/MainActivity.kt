@@ -1,19 +1,17 @@
 package com.vfpowertech.jsbridge.android
 
 import android.app.Activity
-
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Handler
 import android.view.Menu
 import android.view.MenuItem
 import android.webkit.ConsoleMessage
-import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
-import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface
+import com.vfpowertech.jsbridge.core.js.JSServiceImpl
+import com.vfpowertech.jsbridge.core.js.V
 import com.vfpowertech.jsbridge.core.service.SampleService
 import com.vfpowertech.jsbridge.core.service.SampleServiceJSProxy
 import org.slf4j.LoggerFactory
@@ -62,6 +60,19 @@ class MainActivity : Activity() {
         val dispatcher = Dispatcher(AndroidWebEngineInterface(webview))
         val sampleService = SampleService()
         dispatcher.registerService("SampleService", SampleServiceJSProxy(sampleService, dispatcher))
+
+        findViewById(R.id.notifyBtn).setOnClickListener {
+            sampleService.callListeners(5)
+        }
+
+        val jsService = JSServiceImpl(dispatcher)
+        findViewById(R.id.callBtn).setOnClickListener {
+            jsService.syncFn(V(5, 6), 5) success {
+                log.info("Result of syncFn: {}", it)
+            } fail {
+                log.info("syncFn failed: {}", it)
+            }
+        }
 
         webview.loadUrl("file:///android_asset/index.html")
     }
