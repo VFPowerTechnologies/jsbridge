@@ -1,18 +1,19 @@
 package com.vfpowertech.jsbridge.core.dispatcher
 
-import javafx.scene.web.WebEngine
 import org.slf4j.LoggerFactory
 import java.util.*
 
-//TODO portable engine interface
-//called from js
-class Dispatcher(private val engine: WebEngine) {
+class Dispatcher(private val engine: WebEngineInterface) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val services = HashMap<String, JSProxy>()
 
     private var nextCallbackId = 0
     private val pendingPromises = HashMap<String, PromiseCallbacks>()
+
+    init {
+        engine.register(this)
+    }
 
     fun registerService(serviceName: String, service: JSProxy) {
         services[serviceName] = service
@@ -41,7 +42,7 @@ class Dispatcher(private val engine: WebEngine) {
     fun sendValueBackToJS(callbackId: String, json: String?) {
         log.debug("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
         //TODO need to make sure this is available for each platform
-        engine.executeScript("window.dispatcher.sendValue(\"$callbackId\", false, $json);")
+        engine.runJS("window.dispatcher.sendValue(\"$callbackId\", false, $json);")
     }
 
     fun sendExcBackToJS(callbackId: String, json: String) {
@@ -57,7 +58,7 @@ class Dispatcher(private val engine: WebEngine) {
         //we add this first, as executeScript is sync
         pendingPromises[callbackId] = PromiseCallbacks(resolve, reject)
         //TODO catch exceptions and fail the promise?
-        engine.executeScript("window.dispatcher.callFromNative(\"$target\", \"$methodName\", $methodArgs, \"$callbackId\");")
+        engine.runJS("window.dispatcher.callFromNative(\"$target\", \"$methodName\", $methodArgs, \"$callbackId\");")
     }
 
     fun callbackFromJS(callbackId: String, isError: Boolean, jsonRetVal: String) {

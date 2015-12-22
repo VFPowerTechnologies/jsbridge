@@ -2,6 +2,7 @@ package com.vfpowertech.jsbridge.desktop
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
+import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface
 import com.vfpowertech.jsbridge.core.js.JSServiceImpl
 import com.vfpowertech.jsbridge.core.js.V
 import com.vfpowertech.jsbridge.core.service.SampleService
@@ -33,13 +34,10 @@ class App : Application() {
 
         enableDebugger(engine)
 
-        val dispatcher = Dispatcher(engine)
+        val dispatcher = Dispatcher(JFXWebEngineInterface(engine))
 
         val sampleService = SampleService()
         dispatcher.registerService("SampleService", SampleServiceJSProxy(sampleService, dispatcher))
-
-        val window = engine.executeScript("window") as JSObject
-        window.setMember("nativeDispatcher", dispatcher)
 
         val btnBox = HBox()
         vb.children.add(btnBox)
