@@ -24,4 +24,6 @@ dependencies {
     compile project(':core')
     compile "org.robovm:robovm-rt:$versions.roboVM"
     compile "org.robovm:robovm-cocoatouch:$versions.roboVM"
+    //TMP
+    compile 'org.slf4j:slf4j-simple:1.7.13'
 }

@@ -1,6 +1,5 @@
 package com.vfpowertech.jsbridge.ios
 
-import org.robovm.apple.foundation.Foundation
 import org.robovm.apple.foundation.NSAutoreleasePool
 import org.robovm.apple.uikit.*
 
@@ -22,7 +21,6 @@ class Main : UIApplicationDelegateAdapter() {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            Foundation.log("Main")
             val pool = NSAutoreleasePool()
             try {
                 UIApplication.main<UIApplication, Main>(args, null, Main::class.java)

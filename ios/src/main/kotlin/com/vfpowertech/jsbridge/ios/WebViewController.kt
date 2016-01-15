@@ -1,6 +1,9 @@
 package com.vfpowertech.jsbridge.ios
 
-import org.robovm.apple.foundation.Foundation
+import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
+import com.vfpowertech.jsbridge.core.js.JSServiceImpl
+import com.vfpowertech.jsbridge.core.service.SampleService
+import com.vfpowertech.jsbridge.core.service.SampleServiceJSProxy
 import org.robovm.apple.foundation.NSBundle
 import org.robovm.apple.foundation.NSURL
 import org.robovm.apple.foundation.NSURLRequest
@@ -23,22 +26,23 @@ class WebViewController : UIViewController() {
 
         val configuration = WKWebViewConfiguration()
         val userContentController = WKUserContentController()
-        userContentController.addScriptMessageHandler(MessageHandler(), "native")
         configuration.userContentController = userContentController
 
         val webView = WKWebView(contentView.frame, configuration)
 
-        webView.navigationDelegate = NavDelegate()
+        val dispatcher = Dispatcher(IOSWebEngineInterface(webView))
 
-        val path = NSBundle.getMainBundle().findResourcePath("index", "html", "www")
+        val sampleService = SampleService()
+        dispatcher.registerService("SampleService", SampleServiceJSProxy(sampleService, dispatcher))
+
+        val jsService = JSServiceImpl(dispatcher)
+
+        webView.navigationDelegate = NavDelegate(jsService)
+
+        val path = NSBundle.getMainBundle().findResourcePath("index", "html")
         val f = File(path)
         webView.loadRequest(NSURLRequest(NSURL(f)))
 
-        //NSURL url = new NSURL("http://www.google.com");
-        //webView.loadRequest(new NSURLRequest(url));
-
         contentView.addSubview(webView)
-
-        Foundation.log("Here")
     }
 }

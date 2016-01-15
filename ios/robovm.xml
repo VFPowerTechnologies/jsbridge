@@ -8,5 +8,8 @@
         <resource>
             <directory>resources</directory>
         </resource>
+        <resource>
+            <directory>../web</directory>
+        </resource>
     </resources>
 </config>

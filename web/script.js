@@ -111,6 +111,23 @@ Dispatcher.prototype._getNextCallbackId = function () {
     return n.toString();
 };
 
+//IOS Webview
+//TODO make sure this isn't also used on OSX when using jfx
+if (window.nativeDispatcher === undefined) {
+    if (window.webkit.messageHandlers !== undefined) {
+        window.nativeDispatcher = {
+            call: function (serviceName, methodName, methodArgs, callbackId) {
+                window.webkit.messageHandlers.call.postMessage([serviceName, methodName, methodArgs, callbackId]);
+            },
+            callbackFromJS: function (callbackId, isError, jsonRetVal) {
+                window.webkit.messageHandlers.callbackFromJS.postMessage([callbackId, isError, jsonRetVal]);
+            }
+        };
+    }
+    else
+        console.log('Unsupported platform');
+}
+
 dispatcher = new Dispatcher();
 sampleService = new SampleService()
 
