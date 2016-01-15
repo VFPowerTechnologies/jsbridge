@@ -13,18 +13,11 @@ apply plugin: 'kotlin'
 //since we need to share the generated classes with android, which can't handle 1.8 classes
 sourceCompatibility = JavaVersion.VERSION_1_7
 
-ext {
-    jacksonVersion = '2.6.4'
-    slf4jVersion = "1.7.13"
-    kovenantVersion = '3.0.0-beta.3'
-}
-
 dependencies {
-    compile "nl.komponents.kovenant:kovenant-core:$kovenantVersion"
-    compile "nl.komponents.kovenant:kovenant-jfx:$kovenantVersion"
-    compile "nl.komponents.kovenant:kovenant-functional:$kovenantVersion"
-    compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
-    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
-    compile "org.slf4j:jul-to-slf4j:$slf4jVersion"
+    compile "nl.komponents.kovenant:kovenant-core:$versions.kovenant"
+    compile "nl.komponents.kovenant:kovenant-functional:$versions.kovenant"
+    compile "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson"
+    compile "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+    compile "org.slf4j:slf4j-api:$versions.slf4j"
+    compile "org.slf4j:jul-to-slf4j:$versions.slf4j"
 }

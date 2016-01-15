@@ -35,6 +35,6 @@ android {
 }
 
 dependencies {
-    compile 'org.slf4j:slf4j-android:1.7.13'
+    compile "org.slf4j:slf4j-android:$versions.slf4j"
     compile project(':core')
 }
