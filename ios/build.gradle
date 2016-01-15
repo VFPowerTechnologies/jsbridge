@@ -10,6 +10,8 @@ buildscript {
 
 apply plugin: 'kotlin'
 apply plugin: 'robovm'
+apply plugin: 'idea'
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -18,6 +20,12 @@ repositories {
 }
 
 robovm {
+}
+
+idea {
+    module {
+        excludeDirs += file('robovm-build')
+    }
 }
 
 dependencies {
