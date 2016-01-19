@@ -30,6 +30,7 @@ idea {
 
 dependencies {
     compile project(':core')
+    compile project(':core-services')
     compile "org.robovm:robovm-rt:$versions.roboVM"
     compile "org.robovm:robovm-cocoatouch:$versions.roboVM"
     //TMP

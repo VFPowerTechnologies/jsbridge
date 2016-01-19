@@ -2,11 +2,8 @@ package com.vfpowertech.jsbridge.desktop
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
-import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface
 import com.vfpowertech.jsbridge.core.js.JSServiceImpl
 import com.vfpowertech.jsbridge.core.js.V
-import com.vfpowertech.jsbridge.core.service.SampleService
-import com.vfpowertech.jsbridge.core.service.SampleServiceJSProxy
 import com.vfpowertech.jsbridge.desktop.console.ConsoleMessageAdded
 import javafx.application.Application
 import javafx.scene.Scene
@@ -17,7 +14,6 @@ import javafx.scene.layout.VBox
 import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
-import netscape.javascript.JSObject
 import org.slf4j.LoggerFactory
 
 class App : Application() {
@@ -36,8 +32,8 @@ class App : Application() {
 
         val dispatcher = Dispatcher(JFXWebEngineInterface(engine))
 
-        val sampleService = SampleService()
-        dispatcher.registerService("SampleService", SampleServiceJSProxy(sampleService, dispatcher))
+        val sampleService = com.vfpowertech.jsbridge.core.services.SampleService()
+        dispatcher.registerService("SampleService", com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy(sampleService, dispatcher))
 
         val btnBox = HBox()
         vb.children.add(btnBox)

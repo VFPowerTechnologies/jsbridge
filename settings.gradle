@@ -4,3 +4,5 @@ include 'core'
 include 'desktop'
 include 'android'
 include 'ios'
+include 'core-services'
+

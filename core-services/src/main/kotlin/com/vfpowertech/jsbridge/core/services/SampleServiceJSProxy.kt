@@ -1,10 +1,10 @@
-package com.vfpowertech.jsbridge.core.service
+package com.vfpowertech.jsbridge.core.services
 
 import com.fasterxml.jackson.databind.InjectableValues
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
 import com.vfpowertech.jsbridge.core.dispatcher.JSProxy
-import com.vfpowertech.jsbridge.core.service.SampleService
+import com.vfpowertech.jsbridge.core.services.SampleService
 import org.slf4j.LoggerFactory
 
 //two types of functions:
