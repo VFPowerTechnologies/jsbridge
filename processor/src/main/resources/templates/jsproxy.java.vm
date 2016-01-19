@@ -1,0 +1,30 @@
+package $package;
+
+import $originalFDQN;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher;
+
+@javax.annotation.Generated("jsbridge")
+public final class $className implements com.vfpowertech.jsbridge.core.dispatcher.JSProxy {
+    private Logger log = LoggerFactory.getLogger(${className}.class);
+    private $originalClassName service;
+    private Dispatcher dispatcher;
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public ${className}($originalClassName service, Dispatcher dispatcher) {
+        this.service = service;
+        this.dispatcher = dispatcher;
+
+        InjectableValues.Std injectableValues = new InjectableValues.Std();
+        injectableValues.addValue(Dispatcher.class, dispatcher);
+        objectMapper.setInjectableValues(injectableValues);
+    }
+
+    @Override
+    public void call(String methodName, String methodArgs, String callbackId) {
+    }
+}
+

@@ -1,0 +1,17 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile project(':core')
+    compile project(':processor-annotations')
+    compile 'org.apache.velocity:velocity:1.7'
+}

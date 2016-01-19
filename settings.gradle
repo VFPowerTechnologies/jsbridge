@@ -4,5 +4,7 @@ include 'core'
 include 'desktop'
 include 'android'
 include 'ios'
+include 'processor'
 include 'core-services'
+include 'processor-annotations'
 

@@ -1,8 +1,10 @@
 package com.vfpowertech.jsbridge.core.services
 
+import com.vfpowertech.jsbridge.processor.Generate
 import java.util.*
 
 //TODO async method
+@Generate
 class SampleService {
     var value: Int = 0
     private val listeners = ArrayList<(Int) -> Unit>()
