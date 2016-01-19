@@ -39,6 +39,7 @@ class Processor : AbstractProcessor() {
     private lateinit var jsBuildDir: File
     private lateinit var velocityEngine: VelocityEngine
     private lateinit var jsproxyTemplate: Template
+    private lateinit var argsTemplate: Template
     private val generatedClasses = HashSet<String>()
 
     private fun logInfo(s: String) {
@@ -67,6 +68,7 @@ class Processor : AbstractProcessor() {
             velocityEngine.init()
 
             jsproxyTemplate = velocityEngine.getTemplate("templates/jsproxy.java.vm")
+            argsTemplate = velocityEngine.getTemplate("templates/args.java.vm")
         }
 
         for (e in roundEnv.getElementsAnnotatedWith(Generate::class.java)) {
@@ -95,8 +97,12 @@ class Processor : AbstractProcessor() {
         //b) sync (retval is not Promise)
         //also need to handle FunctionN params since they need to be wrapped
         val classSpec = generateClassSpecFor(e)
-        println(classSpec)
 
+        //generate method arg classes
+        for (methodSpec in classSpec.methods)
+            generateCodeForMethodParams(generatedPkg, methodSpec, e)
+
+        //generate js->java proxy
         val vc = VelocityContext()
         vc.put("package", generatedPkg)
         vc.put("className", generatedClassName)
@@ -107,6 +113,28 @@ class Processor : AbstractProcessor() {
 
         BufferedWriter(jfo.openWriter()).use {
             jsproxyTemplate.merge(vc, it)
+        }
+    }
+
+    private fun generateCodeForMethodParams(pkg: String, methodSpec: MethodSpec, e: TypeElement) {
+        //don't generate empty params
+        if (methodSpec.params.isEmpty())
+            return
+
+        val className = "${methodSpec.name}Args"
+        val fqdn = "$pkg.$className"
+
+        val vc = VelocityContext()
+        vc.put("package", pkg)
+        vc.put("className", className)
+        vc.put("params", methodSpec.params)
+
+        logInfo("Generating $fqdn")
+
+        //TODO translate FunctionN -> JSCallbackInt
+        val jfo = processingEnv.filer.createSourceFile(fqdn, e)
+        BufferedWriter(jfo.openWriter()).use {
+            argsTemplate.merge(vc, it)
         }
     }
 

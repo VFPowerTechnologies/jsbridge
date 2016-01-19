@@ -1,0 +1,31 @@
+package $package;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonFormat(shape = JsonFormat.Shape.ARRAY)
+@JsonPropertyOrder({
+    #foreach($p in $params)
+        "${p.name}"
+        #if($foreach.hasNext),#end
+    #end
+})
+public final class $className {
+    #foreach($p in $params)
+        public ${p.type} ${p.name};
+    #end
+
+    @JsonCreator
+    ${className}(
+    #foreach($p in $params)
+        @JsonProperty ${p.type} ${p.name}
+        #if($foreach.hasNext),#end
+    #end
+    ) {
+        #foreach($p in $params)
+            this.${p.name} = ${p.name};
+        #end
+    }
+}
