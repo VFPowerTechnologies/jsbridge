@@ -24,6 +24,7 @@ class SampleService {
 
     }
 
+    @Exclude
     fun callListeners(v: Int) {
         listeners.forEach { it(v) }
     }
