@@ -17,12 +17,17 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.PrimitiveType
+import javax.lang.model.type.TypeMirror
+import javax.lang.model.type.WildcardType
 import javax.tools.Diagnostic
 
-data class ParamSpec(val name: String, val type: String)
+data class ParamSpec(val name: String, val typeStr: String)
 data class MethodSpec(
     val name: String,
-    val params: List<ParamSpec>
+    val params: List<ParamSpec>,
+    val paramMirrors: List<TypeMirror>
 )
 data class ClassSpec(
     val name: String,
@@ -35,12 +40,87 @@ data class ClassSpec(
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions("jsBuildDir")
 class Processor : AbstractProcessor() {
+    companion object {
+        fun getFunctionTypes(mirror: TypeMirror): Pair<String, List<String>> {
+            var argTypes = ArrayList<String>()
+            //TODO make sure this is a fun subtype
+
+            mirror as DeclaredType
+
+            //TODO allow for bounds in invoke
+            for (arg in mirror.typeArguments) {
+                argTypes.add(getTypeWithoutBounds(arg))
+            }
+
+            //drop return type
+            val retType = argTypes.last()
+            argTypes.dropLast(1)
+
+            return retType to argTypes
+        }
+
+        //only support functions with a single arg with a Unit return type right now
+        fun checkIfFunctionTypeIsSupported(fqdn: String, mirror: TypeMirror): Boolean {
+            val typeStr = mirror.toString()
+            if (typeStr.startsWith("kotlin.jvm.functions.Function")) {
+                if (!typeStr.startsWith("kotlin.jvm.functions.Function1"))
+                    throw IllegalArgumentException("$fqdn: Functions with more than one arg aren't supported")
+
+                mirror as DeclaredType
+                val retMirror = mirror.typeArguments.last()
+                val retStr = retMirror.toString()
+                if (retStr != "? extends kotlin.Unit" && retStr != "kotlin.Unit")
+                    throw IllegalArgumentException("$fqdn: Only Unit is supported as a return type, got $retStr")
+
+                return true
+            }
+
+            return false
+        }
+
+        fun getTypeWithoutBounds(mirror: TypeMirror): String {
+            fun buildTypeStr(mirror: TypeMirror, builder: StringBuilder) {
+                when (mirror) {
+                    is DeclaredType -> {
+                        builder.append(mirror.asElement().toString())
+                        if (mirror.typeArguments.isNotEmpty()) {
+                            builder.append('<')
+                            for (arg in mirror.typeArguments) {
+                                buildTypeStr(arg, builder)
+                                builder.append(',')
+                            }
+                            builder.deleteCharAt(builder.lastIndex)
+                            builder.append('>')
+                        }
+                    }
+
+                    is WildcardType -> {
+                        //get the type without bounds
+                        val wildMirror = (mirror.superBound ?: mirror.extendsBound)
+                        buildTypeStr(wildMirror, builder)
+                    }
+
+                    is PrimitiveType ->
+                        builder.append(mirror.toString())
+
+                    else -> throw IllegalArgumentException()
+                }
+            }
+            val builder = StringBuilder()
+            buildTypeStr(mirror, builder)
+            return builder.toString()
+        }
+    }
+
     private var initialized = false
     private lateinit var jsBuildDir: File
     private lateinit var velocityEngine: VelocityEngine
     private lateinit var jsproxyTemplate: Template
     private lateinit var argsTemplate: Template
+    private lateinit var jscallbackTemplate: Template
     private val generatedClasses = HashSet<String>()
+    //list of generated JSCallback* classes
+    private val generatedCallbacks = HashSet<String>()
 
     private fun logInfo(s: String) {
         processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, s)
@@ -62,13 +142,16 @@ class Processor : AbstractProcessor() {
             }
             jsBuildDir = File(p)
 
-            velocityEngine = VelocityEngine()
+            val props = Properties()
+            props.setProperty("runtime.references.strict", "true")
+            velocityEngine = VelocityEngine(props)
             velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath")
             velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader::class.java.name)
             velocityEngine.init()
 
             jsproxyTemplate = velocityEngine.getTemplate("templates/jsproxy.java.vm")
             argsTemplate = velocityEngine.getTemplate("templates/args.java.vm")
+            jscallbackTemplate = velocityEngine.getTemplate("templates/jscallback.java.vm")
         }
 
         for (e in roundEnv.getElementsAnnotatedWith(Generate::class.java)) {
@@ -99,8 +182,10 @@ class Processor : AbstractProcessor() {
         val classSpec = generateClassSpecFor(e)
 
         //generate method arg classes
-        for (methodSpec in classSpec.methods)
+        for (methodSpec in classSpec.methods) {
+            preprocessMethodSpec(generatedPkg, classSpec, methodSpec)
             generateCodeForMethodParams(generatedPkg, methodSpec, e)
+        }
 
         //generate js->java proxy
         val vc = VelocityContext()
@@ -114,6 +199,79 @@ class Processor : AbstractProcessor() {
         BufferedWriter(jfo.openWriter()).use {
             jsproxyTemplate.merge(vc, it)
         }
+    }
+
+    private fun jscallbackNameFromParamspec(mirror: DeclaredType): String {
+        fun collapseTypeName(typeName: String): String =
+            typeName.replace(".", "")
+
+        fun getStr(mirror: TypeMirror, builder: StringBuilder): Unit =
+            when (mirror) {
+                is DeclaredType -> {
+                    val typeName = mirror.asElement().toString()
+                    builder.append(collapseTypeName(typeName))
+                    for (arg in mirror.typeArguments)
+                        getStr(arg, builder)
+                }
+
+                is WildcardType -> {
+                    val wildMirror = (mirror.superBound ?: mirror.extendsBound)
+                    getStr(wildMirror, builder)
+                }
+
+                else ->
+                    throw IllegalArgumentException("Unexpected type kind: ${mirror.kind}")
+            }
+
+        val arg = mirror.typeArguments.first()
+        val builder = StringBuilder("JSCallback")
+        getStr(arg, builder)
+        return builder.toString()
+    }
+
+    private fun preprocessMethodSpec(pkg: String, classSpec: ClassSpec, methodSpec: MethodSpec): List<ParamSpec> {
+        val methodFQN = "${classSpec.name}.${methodSpec.name}"
+
+        val params = ArrayList<ParamSpec>()
+
+        for ((idx, p) in methodSpec.params.withIndex()) {
+            val mirror = methodSpec.paramMirrors[idx]
+            if (!checkIfFunctionTypeIsSupported(methodFQN, mirror)) {
+                params.add(p)
+                continue
+            }
+            val jscallbackName = jscallbackNameFromParamspec(mirror as DeclaredType)
+            println("${methodSpec.name}: ${p.name} -> $jscallbackName")
+            val newParamSpec = p.copy(typeStr = jscallbackName)
+            params.add(newParamSpec)
+
+            //XXX can be more efficient and not generate them per package
+            val fqn = "$pkg.$jscallbackName"
+            if (fqn in generatedCallbacks)
+                continue
+
+            generatedCallbacks.add(fqn)
+
+            logInfo("Generating $fqn")
+
+            val sig = getTypeWithoutBounds(mirror)
+            val (retType, funcArgs) = getFunctionTypes(mirror)
+            println("sig: $sig")
+            val vc = VelocityContext()
+            vc.put("package", pkg)
+            vc.put("className", jscallbackName)
+            vc.put("functionSig", sig)
+            vc.put("retType", retType)
+            vc.put("argType", funcArgs.first())
+
+            //TODO add generating object
+            val jfo = processingEnv.filer.createSourceFile(fqn)
+            BufferedWriter(jfo.openWriter()).use {
+                jscallbackTemplate.merge(vc, it)
+            }
+        }
+
+        return params
     }
 
     private fun generateCodeForMethodParams(pkg: String, methodSpec: MethodSpec, e: TypeElement) {
@@ -131,7 +289,6 @@ class Processor : AbstractProcessor() {
 
         logInfo("Generating $fqdn")
 
-        //TODO translate FunctionN -> JSCallbackInt
         val jfo = processingEnv.filer.createSourceFile(fqdn, e)
         BufferedWriter(jfo.openWriter()).use {
             argsTemplate.merge(vc, it)
@@ -151,14 +308,17 @@ class Processor : AbstractProcessor() {
             val m = ee as ExecutableElement
             val methodName = m.simpleName.toString()
             val params = ArrayList<ParamSpec>()
+            val mirrors = ArrayList<TypeMirror>()
 
             for (p in m.parameters) {
                 val paramName = p.simpleName.toString()
-                val paramType = p.asType().toString()
-                params.add(ParamSpec(paramName, paramType))
+                val mirror = p.asType()
+                val paramTypeStr = mirror.toString()
+                params.add(ParamSpec(paramName, paramTypeStr))
+                mirrors.add(mirror)
             }
 
-            methods.add(MethodSpec(methodName, params))
+            methods.add(MethodSpec(methodName, params, mirrors))
         }
 
         return ClassSpec(cls.simpleName.toString(), methods)

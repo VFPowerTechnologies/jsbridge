@@ -1,5 +1,6 @@
 package com.vfpowertech.jsbridge.core.services
 
+import com.vfpowertech.jsbridge.processor.Exclude
 import com.vfpowertech.jsbridge.processor.Generate
 import java.util.*
 
@@ -11,6 +12,16 @@ class SampleService {
 
     fun addListener(listener: (Int) -> Unit) {
         listeners.add(listener)
+    }
+
+    @Exclude
+    fun badArgCount(listener: (Int, String) -> Unit) {
+
+    }
+
+    @Exclude
+    fun badRetType(listener: (Int) -> Int) {
+
     }
 
     fun callListeners(v: Int) {

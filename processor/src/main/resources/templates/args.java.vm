@@ -14,13 +14,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 public final class $className {
     #foreach($p in $params)
-        public ${p.type} ${p.name};
+        public ${p.typeStr} ${p.name};
     #end
 
     @JsonCreator
     ${className}(
     #foreach($p in $params)
-        @JsonProperty ${p.type} ${p.name}
+        @JsonProperty ${p.typeStr} ${p.name}
         #if($foreach.hasNext),#end
     #end
     ) {

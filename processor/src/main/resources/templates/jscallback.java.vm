@@ -1,0 +1,42 @@
+package $package;
+
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher;
+
+@JsonDeserialize(using = ${className}.Deserializer.class)
+public class $className implements $functionSig {
+    public static class Deserializer extends JsonDeserializer<$className> {
+        @Override
+        public $className deserialize(JsonParser jp, DeserializationContext ctxt) throws java.io.IOException, JsonProcessingException {
+            return null;
+        }
+    }
+
+    private String callbackId;
+    private Dispatcher dispatcher;
+
+    public $className(String callbackId, Dispatcher dispatcher) {
+        this.callbackId = callbackId;
+        this.dispatcher = dispatcher;
+    }
+
+    @Override
+    public $retType invoke(${argType} arg0) {
+        //hack to bypass checked exceptions
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(arg0);
+            dispatcher.sendValueBackToJS(callbackId, json);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+}
