@@ -9,6 +9,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.util.*
 import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.annotation.processing.SupportedAnnotationTypes
 import javax.annotation.processing.SupportedOptions
@@ -19,13 +20,28 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.PrimitiveType
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
 import javax.tools.Diagnostic
 
+data class MethodGenerationInfo(
+    val name: String,
+    val argsType: String,
+    val retType: String?,
+    val argNames: List<String>
+) {
+    val hasRetVal: Boolean
+        get() = retType != null
+    val hasArgs: Boolean
+        get() = argNames.isNotEmpty()
+}
+
 data class ParamSpec(val name: String, val typeStr: String)
 data class MethodSpec(
     val name: String,
+    val retType: String,
+    val retMirror: TypeMirror,
     val params: List<ParamSpec>,
     val paramMirrors: List<TypeMirror>
 )
@@ -41,6 +57,24 @@ data class ClassSpec(
 @SupportedOptions("jsBuildDir")
 class Processor : AbstractProcessor() {
     companion object {
+        //supports both java's void+Void and kotlin's Unit
+        fun isVoidType(processingEnv: ProcessingEnvironment, mirror: TypeMirror): Boolean {
+            val typeUtils = processingEnv.typeUtils
+            val elementUtils = processingEnv.elementUtils
+
+            val voidTypes = arrayListOf(
+                typeUtils.getNoType(TypeKind.VOID),
+                elementUtils.getTypeElement("java.lang.Void").asType(),
+                elementUtils.getTypeElement("kotlin.Unit").asType())
+
+            for (voidMirror in voidTypes) {
+                if (typeUtils.isSameType(mirror, voidMirror))
+                    return true
+            }
+
+            return false
+        }
+
         fun getFunctionTypes(mirror: TypeMirror): Pair<String, List<String>> {
             var argTypes = ArrayList<String>()
             //TODO make sure this is a fun subtype
@@ -168,7 +202,7 @@ class Processor : AbstractProcessor() {
             throw IllegalArgumentException("Annotated objects must be in a package: $fqdn")
 
         //generated files go into <qualified-name>.js.<name>JSProxy
-        val pkg = fqdn.substring(0, idx-1)
+        val pkg = fqdn.substring(0, idx)
         val generatedPkg = "$pkg.js"
         val className = fqdn.substring(idx+1)
         val generatedClassName = "${className}JSProxy"
@@ -181,10 +215,19 @@ class Processor : AbstractProcessor() {
         //also need to handle FunctionN params since they need to be wrapped
         val classSpec = generateClassSpecFor(e)
 
+        val methodGenerationInfo = ArrayList<MethodGenerationInfo>()
         //generate method arg classes
         for (methodSpec in classSpec.methods) {
-            preprocessMethodSpec(generatedPkg, classSpec, methodSpec)
-            generateCodeForMethodParams(generatedPkg, methodSpec, e)
+            val newSpec = preprocessMethodSpec(generatedPkg, classSpec, methodSpec)
+            generateCodeForMethodParams(generatedPkg, newSpec, e)
+
+            val argNames = methodSpec.params.map { it.name }
+            //TODO prefix classname
+            val argsType = "${newSpec.name}Args"
+            val retType = if (!isVoidType(processingEnv, newSpec.retMirror)) newSpec.retType else null
+
+            val genInfo = MethodGenerationInfo(methodSpec.name, argsType,  retType,  argNames)
+            methodGenerationInfo.add(genInfo)
         }
 
         //generate js->java proxy
@@ -193,6 +236,7 @@ class Processor : AbstractProcessor() {
         vc.put("className", generatedClassName)
         vc.put("originalFDQN", fqdn)
         vc.put("originalClassName", className)
+        vc.put("methods", methodGenerationInfo)
 
         val jfo = processingEnv.filer.createSourceFile(generatedFQDN, e)
 
@@ -229,7 +273,7 @@ class Processor : AbstractProcessor() {
         return builder.toString()
     }
 
-    private fun preprocessMethodSpec(pkg: String, classSpec: ClassSpec, methodSpec: MethodSpec): List<ParamSpec> {
+    private fun preprocessMethodSpec(pkg: String, classSpec: ClassSpec, methodSpec: MethodSpec): MethodSpec {
         val methodFQN = "${classSpec.name}.${methodSpec.name}"
 
         val params = ArrayList<ParamSpec>()
@@ -241,7 +285,6 @@ class Processor : AbstractProcessor() {
                 continue
             }
             val jscallbackName = jscallbackNameFromParamspec(mirror as DeclaredType)
-            println("${methodSpec.name}: ${p.name} -> $jscallbackName")
             val newParamSpec = p.copy(typeStr = jscallbackName)
             params.add(newParamSpec)
 
@@ -256,7 +299,6 @@ class Processor : AbstractProcessor() {
 
             val sig = getTypeWithoutBounds(mirror)
             val (retType, funcArgs) = getFunctionTypes(mirror)
-            println("sig: $sig")
             val vc = VelocityContext()
             vc.put("package", pkg)
             vc.put("className", jscallbackName)
@@ -264,14 +306,13 @@ class Processor : AbstractProcessor() {
             vc.put("retType", retType)
             vc.put("argType", funcArgs.first())
 
-            //TODO add generating object
             val jfo = processingEnv.filer.createSourceFile(fqn)
             BufferedWriter(jfo.openWriter()).use {
                 jscallbackTemplate.merge(vc, it)
             }
         }
 
-        return params
+        return methodSpec.copy(params = params)
     }
 
     private fun generateCodeForMethodParams(pkg: String, methodSpec: MethodSpec, e: TypeElement) {
@@ -279,6 +320,7 @@ class Processor : AbstractProcessor() {
         if (methodSpec.params.isEmpty())
             return
 
+        //TODO prefix classname
         val className = "${methodSpec.name}Args"
         val fqdn = "$pkg.$className"
 
@@ -307,6 +349,7 @@ class Processor : AbstractProcessor() {
 
             val m = ee as ExecutableElement
             val methodName = m.simpleName.toString()
+            val retType = m.returnType
             val params = ArrayList<ParamSpec>()
             val mirrors = ArrayList<TypeMirror>()
 
@@ -318,7 +361,7 @@ class Processor : AbstractProcessor() {
                 mirrors.add(mirror)
             }
 
-            methods.add(MethodSpec(methodName, params, mirrors))
+            methods.add(MethodSpec(methodName, retType.toString(), retType, params, mirrors))
         }
 
         return ClassSpec(cls.simpleName.toString(), methods)
