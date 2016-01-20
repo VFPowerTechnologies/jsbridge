@@ -57,6 +57,9 @@ data class ClassSpec(
 @SupportedOptions("jsBuildDir")
 class Processor : AbstractProcessor() {
     companion object {
+        fun getMethodArgsClassName(classSpec: ClassSpec, methodSpec: MethodSpec): String =
+            "${classSpec.name}${methodSpec.name.capitalize()}Args"
+
         //supports both java's void+Void and kotlin's Unit
         fun isVoidType(processingEnv: ProcessingEnvironment, mirror: TypeMirror): Boolean {
             val typeUtils = processingEnv.typeUtils
@@ -219,11 +222,10 @@ class Processor : AbstractProcessor() {
         //generate method arg classes
         for (methodSpec in classSpec.methods) {
             val newSpec = preprocessMethodSpec(generatedPkg, classSpec, methodSpec)
-            generateCodeForMethodParams(generatedPkg, newSpec, e)
+            generateCodeForMethodParams(generatedPkg, classSpec, newSpec, e)
 
             val argNames = methodSpec.params.map { it.name }
-            //TODO prefix classname
-            val argsType = "${newSpec.name}Args"
+            val argsType = getMethodArgsClassName(classSpec, newSpec)
             val retType = if (!isVoidType(processingEnv, newSpec.retMirror)) newSpec.retType else null
 
             val genInfo = MethodGenerationInfo(methodSpec.name, argsType,  retType,  argNames)
@@ -315,13 +317,12 @@ class Processor : AbstractProcessor() {
         return methodSpec.copy(params = params)
     }
 
-    private fun generateCodeForMethodParams(pkg: String, methodSpec: MethodSpec, e: TypeElement) {
+    private fun generateCodeForMethodParams(pkg: String, classSpec: ClassSpec, methodSpec: MethodSpec, e: TypeElement) {
         //don't generate empty params
         if (methodSpec.params.isEmpty())
             return
 
-        //TODO prefix classname
-        val className = "${methodSpec.name}Args"
+        val className = getMethodArgsClassName(classSpec, methodSpec)
         val fqdn = "$pkg.$className"
 
         val vc = VelocityContext()
