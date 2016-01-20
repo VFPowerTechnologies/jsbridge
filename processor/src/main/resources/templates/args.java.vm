@@ -19,7 +19,7 @@ public final class $className {
     #end
 
     @JsonCreator
-    ${className}(
+    public ${className}(
     #foreach($p in $params)
         @JsonProperty ${p.typeStr} ${p.name}
         #if($foreach.hasNext),#end
