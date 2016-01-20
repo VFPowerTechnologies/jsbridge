@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher;
 
+@javax.annotation.Generated("jsbridge")
 @JsonDeserialize(using = ${className}.Deserializer.class)
 public class $className implements $functionSig {
     public static class Deserializer extends JsonDeserializer<$className> {
