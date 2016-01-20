@@ -97,17 +97,17 @@ class Processor : AbstractProcessor() {
         }
 
         //only support functions with a single arg with a Unit return type right now
-        fun checkIfFunctionTypeIsSupported(fqdn: String, mirror: TypeMirror): Boolean {
+        fun checkIfFunctionTypeIsSupported(fqn: String, mirror: TypeMirror): Boolean {
             val typeStr = mirror.toString()
             if (typeStr.startsWith("kotlin.jvm.functions.Function")) {
                 if (!typeStr.startsWith("kotlin.jvm.functions.Function1"))
-                    throw IllegalArgumentException("$fqdn: Functions with more than one arg aren't supported")
+                    throw IllegalArgumentException("$fqn: Functions with more than one arg aren't supported")
 
                 mirror as DeclaredType
                 val retMirror = mirror.typeArguments.last()
                 val retStr = retMirror.toString()
                 if (retStr != "? extends kotlin.Unit" && retStr != "kotlin.Unit")
-                    throw IllegalArgumentException("$fqdn: Only Unit is supported as a return type, got $retStr")
+                    throw IllegalArgumentException("$fqn: Only Unit is supported as a return type, got $retStr")
 
                 return true
             }
@@ -199,18 +199,18 @@ class Processor : AbstractProcessor() {
     }
 
     private fun generateCodeFor(e: TypeElement) {
-        val fqdn = e.qualifiedName
-        val idx = fqdn.lastIndexOf('.')
+        val fqn = e.qualifiedName
+        val idx = fqn.lastIndexOf('.')
         if (idx <= 0)
-            throw IllegalArgumentException("Annotated objects must be in a package: $fqdn")
+            throw IllegalArgumentException("Annotated objects must be in a package: $fqn")
 
         //generated files go into <qualified-name>.js.<name>JSProxy
-        val pkg = fqdn.substring(0, idx)
+        val pkg = fqn.substring(0, idx)
         val generatedPkg = "$pkg.js"
-        val className = fqdn.substring(idx+1)
+        val className = fqn.substring(idx+1)
         val generatedClassName = "${className}JSProxy"
-        val generatedFQDN = "$generatedPkg.$generatedClassName"
-        logInfo("Generating $generatedFQDN")
+        val generatedFQN = "$generatedPkg.$generatedClassName"
+        logInfo("Generating $generatedFQN")
 
         //TODO classify methods as:
         //a) async (retval is Promise)
@@ -236,11 +236,11 @@ class Processor : AbstractProcessor() {
         val vc = VelocityContext()
         vc.put("package", generatedPkg)
         vc.put("className", generatedClassName)
-        vc.put("originalFDQN", fqdn)
+        vc.put("originalFDQN", fqn)
         vc.put("originalClassName", className)
         vc.put("methods", methodGenerationInfo)
 
-        val jfo = processingEnv.filer.createSourceFile(generatedFQDN, e)
+        val jfo = processingEnv.filer.createSourceFile(generatedFQN, e)
 
         BufferedWriter(jfo.openWriter()).use {
             jsproxyTemplate.merge(vc, it)
@@ -323,16 +323,16 @@ class Processor : AbstractProcessor() {
             return
 
         val className = getMethodArgsClassName(classSpec, methodSpec)
-        val fqdn = "$pkg.$className"
+        val fqn = "$pkg.$className"
 
         val vc = VelocityContext()
         vc.put("package", pkg)
         vc.put("className", className)
         vc.put("params", methodSpec.params)
 
-        logInfo("Generating $fqdn")
+        logInfo("Generating $fqn")
 
-        val jfo = processingEnv.filer.createSourceFile(fqdn, e)
+        val jfo = processingEnv.filer.createSourceFile(fqn, e)
         BufferedWriter(jfo.openWriter()).use {
             argsTemplate.merge(vc, it)
         }
