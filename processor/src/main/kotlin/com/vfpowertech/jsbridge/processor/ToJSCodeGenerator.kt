@@ -1,7 +1,6 @@
 package com.vfpowertech.jsbridge.processor
 
 import java.util.*
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
@@ -47,7 +46,7 @@ fun ClassInfo.getReferencedTypes(): Map<String,  TypeMirror> {
     return referencedTypes
 }
 
-class ToJSCodeGenerator(private val processingEnv: ProcessingEnvironment) {
+class ToJSCodeGenerator(private val context: GenerationContext) {
     fun generate(elements: Set<Element>) {
         val classes = ArrayList<ClassInfo>()
         val referencedTypes = HashMap<String, TypeMirror>()
@@ -75,8 +74,8 @@ class ToJSCodeGenerator(private val processingEnv: ProcessingEnvironment) {
 
     private fun isValidReturnType(mirror: TypeMirror): Boolean {
         //TODO make sure this is a Promise<E, Exception>
-        val promiseType = processingEnv.elementUtils.getTypeElement("nl.komponents.kovenant.Promise").asType()
-        val typeUtils = processingEnv.typeUtils
+        val promiseType = context.processingEnv.elementUtils.getTypeElement("nl.komponents.kovenant.Promise").asType()
+        val typeUtils = context.processingEnv.typeUtils
         return typeUtils.isSubtype(typeUtils.erasure(mirror), typeUtils.erasure(promiseType))
     }
 
