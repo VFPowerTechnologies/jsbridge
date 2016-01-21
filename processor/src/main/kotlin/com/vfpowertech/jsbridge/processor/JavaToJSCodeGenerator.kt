@@ -8,17 +8,6 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-//TODO handle generics (List<Set<String>>, etc)
-data class ClassInfo(val name: String, val methods: List<MethodInfo>)
-data class ParamInfo(val name: String, val type: TypeMirror) {
-    val typeFQN: String
-        get() = type.toString()
-}
-data class MethodInfo(val name: String, val params: List<ParamInfo>, val returnType: TypeMirror) {
-    val returnTypeFQN: String
-        get() = returnType.toString()
-}
-
 /*
 1) find methods, their params and return types
 2) Generate: *Args class
@@ -28,7 +17,7 @@ data class MethodInfo(val name: String, val params: List<ParamInfo>, val returnT
     rationale:
         makes generation vastly simpler, as well as letting the library user make their own decisions about serialization when required
 */
-fun ClassInfo.getReferencedTypes(): Map<String,  TypeMirror> {
+fun ClassSpec.getReferencedTypes(): Map<String,  TypeMirror> {
     //can't compare TypeMirrors directly, as the docs state that there's no guarantee that the same type will always
     //be ref'ed by the same object
     //for our purposes so long as the TypeMirror conveys the same info it doesn't matter which one is kept
@@ -48,10 +37,10 @@ fun ClassInfo.getReferencedTypes(): Map<String,  TypeMirror> {
 
 class JavaToJSCodeGenerator(private val context: GenerationContext) {
     fun generate(elements: Set<Element>) {
-        val classes = ArrayList<ClassInfo>()
+        val classes = ArrayList<ClassSpec>()
         val referencedTypes = HashMap<String, TypeMirror>()
         for (e in elements) {
-            val classInfo = generateClassInfoFor(e as TypeElement)
+            val classInfo = generateClassSpecFor(e as TypeElement)
             classes.add(classInfo)
             referencedTypes.putAll(classInfo.getReferencedTypes())
         }
@@ -63,15 +52,15 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
     }
 
     private fun isValidReturnType(mirror: TypeMirror): Boolean {
-        //TODO make sure this is a Promise<E, Exception>
+        //TODO make sure this is a Promise<?, Exception>
         val promiseType = context.processingEnv.elementUtils.getTypeElement("nl.komponents.kovenant.Promise").asType()
         val typeUtils = context.processingEnv.typeUtils
         return typeUtils.isSubtype(typeUtils.erasure(mirror), typeUtils.erasure(promiseType))
     }
 
-    private fun generateClassInfoFor(cls: TypeElement): ClassInfo {
+    private fun generateClassSpecFor(cls: TypeElement): ClassSpec {
         val className = cls.qualifiedName.toString()
-        val methods = ArrayList<MethodInfo>()
+        val methods = ArrayList<MethodSpec>()
 
         for (e in cls.enclosedElements) {
             if (e.kind != ElementKind.METHOD)
@@ -80,7 +69,7 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
 
             val methodName = e.simpleName.toString()
             val returnType = e.returnType
-            val params = ArrayList<ParamInfo>()
+            val params = ArrayList<ParamSpec>()
 
             if (!isValidReturnType(returnType))
                 throw IllegalArgumentException("$className.$methodName has an invalid return type; only methods with a return type of nl.komponents.kovenant.Promise are allowed")
@@ -88,14 +77,14 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
             val actualReturnType = extractReturnTypeValueType(returnType as DeclaredType)
 
             for (pe in e.parameters) {
-                val paramInfo = ParamInfo(pe.simpleName.toString(), pe.asType())
+                val paramInfo = ParamSpec(pe.simpleName.toString(), pe.asType())
                 params.add(paramInfo)
             }
 
-            val methodInfo = MethodInfo(methodName, params, actualReturnType)
+            val methodInfo = MethodSpec(methodName, params, actualReturnType)
             methods.add(methodInfo)
         }
 
-        return ClassInfo(className, methods)
+        return ClassSpec(className, methods)
     }
 }

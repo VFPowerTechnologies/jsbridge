@@ -11,32 +11,6 @@ import javax.annotation.processing.SupportedOptions
 import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
-
-data class MethodGenerationInfo(
-    val name: String,
-    val argsType: String,
-    val retType: String?,
-    val argNames: List<String>
-) {
-    val hasRetVal: Boolean
-        get() = retType != null
-    val hasArgs: Boolean
-        get() = argNames.isNotEmpty()
-}
-
-data class ParamSpec(val name: String, val typeStr: String)
-data class MethodSpec(
-    val name: String,
-    val retType: String,
-    val retMirror: TypeMirror,
-    val params: List<ParamSpec>,
-    val paramMirrors: List<TypeMirror>
-)
-data class ClassSpec(
-    val name: String,
-    val methods: List<MethodSpec>
-)
 
 @SupportedAnnotationTypes(
     "com.vfpowertech.jsbridge.processor.Generate",

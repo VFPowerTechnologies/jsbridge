@@ -37,7 +37,7 @@ public final class $className implements com.vfpowertech.jsbridge.core.dispatche
                 }
             #end
             #if($m.hasRetVal)
-            ${m.retType} value =
+            ${m.returnType} value =
             #end
             service.${m.name}(
                 #foreach($a in ${m.argNames})

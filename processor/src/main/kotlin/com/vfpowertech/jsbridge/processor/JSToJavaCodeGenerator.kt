@@ -10,6 +10,18 @@ import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
 
+data class MethodGenerationInfo(
+    val name: String,
+    val argsType: String,
+    val returnType: String?,
+    val argNames: List<String>
+) {
+    val hasRetVal: Boolean
+        get() = returnType != null
+    val hasArgs: Boolean
+        get() = argNames.isNotEmpty()
+}
+
 class JSToJavaCodeGenerator(private val context: GenerationContext) {
     //list of generated JSCallback* classes
     private val generatedCallbacks = HashSet<String>()
@@ -47,9 +59,9 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
             val argNames = methodSpec.params.map { it.name }
             val argsType = getMethodArgsClassName(classSpec, newSpec)
-            val retType = if (!isVoidType(context.processingEnv, newSpec.retMirror)) newSpec.retType else null
+            val returnType = if (!isVoidType(context.processingEnv, newSpec.returnType)) newSpec.returnTypeFQN else null
 
-            val genInfo = MethodGenerationInfo(methodSpec.name, argsType,  retType,  argNames)
+            val genInfo = MethodGenerationInfo(methodSpec.name, argsType,  returnType,  argNames)
             methodGenerationInfo.add(genInfo)
         }
 
@@ -97,15 +109,14 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
         val params = ArrayList<ParamSpec>()
 
-        for ((idx, p) in methodSpec.params.withIndex()) {
-            val mirror = methodSpec.paramMirrors[idx]
-            if (!checkIfFunctionTypeIsSupported(methodFQN, mirror)) {
+        for (p in methodSpec.params) {
+            if (!checkIfFunctionTypeIsSupported(methodFQN, p.type)) {
                 params.add(p)
                 continue
             }
-            val jscallbackName = jscallbackNameFromParamspec(mirror as DeclaredType)
+            val jscallbackName = jscallbackNameFromParamspec(p.type as DeclaredType)
             val fqn = "${context.options.jsCallbackPackage}.$jscallbackName"
-            val newParamSpec = p.copy(typeStr = fqn)
+            val newParamSpec = p.copy(type = PlaceholderType(fqn))
             params.add(newParamSpec)
 
             if (fqn in generatedCallbacks)
@@ -115,8 +126,8 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
             context.logInfo("Generating $fqn")
 
-            val sig = getTypeWithoutBounds(mirror)
-            val (retType, funcArgs) = getFunctionTypes(mirror)
+            val sig = getTypeWithoutBounds(p.type)
+            val (retType, funcArgs) = getFunctionTypes(p.type)
             val vc = VelocityContext()
             vc.put("package", context.options.jsCallbackPackage)
             vc.put("className", jscallbackName)
@@ -160,19 +171,16 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
             val m = ee as ExecutableElement
             val methodName = m.simpleName.toString()
-            val retType = m.returnType
+            val returnType = m.returnType
             val params = ArrayList<ParamSpec>()
-            val mirrors = ArrayList<TypeMirror>()
 
             for (p in m.parameters) {
                 val paramName = p.simpleName.toString()
-                val mirror = p.asType()
-                val paramTypeStr = mirror.toString()
-                params.add(ParamSpec(paramName, paramTypeStr))
-                mirrors.add(mirror)
+                val type = p.asType()
+                params.add(ParamSpec(paramName, type))
             }
 
-            methods.add(MethodSpec(methodName, retType.toString(), retType, params, mirrors))
+            methods.add(MethodSpec(methodName, params, returnType))
         }
 
         return ClassSpec(cls.simpleName.toString(), methods)

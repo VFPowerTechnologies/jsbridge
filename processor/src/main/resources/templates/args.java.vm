@@ -15,6 +15,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 public final class $className {
     #foreach($p in $params)
-        public ${p.typeStr} ${p.name};
+        public ${p.typeFQN} ${p.name};
     #end
 }
