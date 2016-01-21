@@ -2,8 +2,8 @@ package com.vfpowertech.jsbridge.desktop
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
-import com.vfpowertech.jsbridge.core.js.JSServiceImpl
-import com.vfpowertech.jsbridge.core.js.V
+import com.vfpowertech.jsbridge.core.services.js.JSServiceImpl
+import com.vfpowertech.jsbridge.core.services.js.V
 import com.vfpowertech.jsbridge.desktop.console.ConsoleMessageAdded
 import javafx.application.Application
 import javafx.scene.Scene

@@ -1,7 +1,7 @@
 package com.vfpowertech.jsbridge.ios
 
-import com.vfpowertech.jsbridge.core.js.JSServiceImpl
-import com.vfpowertech.jsbridge.core.js.V
+import com.vfpowertech.jsbridge.core.services.js.JSServiceImpl
+import com.vfpowertech.jsbridge.core.services.js.V
 import org.robovm.apple.foundation.Foundation
 import org.robovm.apple.webkit.*
 import org.robovm.objc.annotation.Block

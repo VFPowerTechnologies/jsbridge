@@ -1,7 +1,7 @@
 package com.vfpowertech.jsbridge.ios
 
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
-import com.vfpowertech.jsbridge.core.js.JSServiceImpl
+import com.vfpowertech.jsbridge.core.services.js.JSServiceImpl
 import com.vfpowertech.jsbridge.core.services.SampleService
 import com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy
 import org.robovm.apple.foundation.NSBundle

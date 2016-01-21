@@ -1,4 +1,4 @@
-package com.vfpowertech.jsbridge.core.js
+package com.vfpowertech.jsbridge.core.services
 
 import com.fasterxml.jackson.annotation.JacksonInject
 import com.fasterxml.jackson.databind.ObjectMapper

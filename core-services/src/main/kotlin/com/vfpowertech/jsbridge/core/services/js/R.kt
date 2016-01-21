@@ -1,4 +1,4 @@
-package com.vfpowertech.jsbridge.core.js
+package com.vfpowertech.jsbridge.core.services.js
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

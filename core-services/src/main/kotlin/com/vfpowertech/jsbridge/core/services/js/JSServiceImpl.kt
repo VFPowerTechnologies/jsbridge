@@ -1,10 +1,10 @@
-package com.vfpowertech.jsbridge.core.js
+package com.vfpowertech.jsbridge.core.services.js
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
-import com.vfpowertech.jsbridge.core.js.JSServiceSyncFnArgs
-import com.vfpowertech.jsbridge.core.js.R
-import com.vfpowertech.jsbridge.core.js.V
+import com.vfpowertech.jsbridge.core.services.js.JSServiceSyncFnArgs
+import com.vfpowertech.jsbridge.core.services.js.R
+import com.vfpowertech.jsbridge.core.services.js.V
 import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.deferred
 
