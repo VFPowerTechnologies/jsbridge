@@ -6,7 +6,7 @@ import org.apache.velocity.app.VelocityEngine
 //Templates for sharing across generators
 class Templates(
     val velocityEngine: VelocityEngine,
-    val jsproxyTemplate: Template,
+    val jsProxyTemplate: Template,
     val argsTemplate: Template,
-    val jscallbackTemplate: Template
+    val jsCallbackTemplate: Template
 )

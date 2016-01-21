@@ -73,7 +73,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         vc.put("originalClassName", className)
         vc.put("methods", methodGenerationInfo)
 
-        context.writeTemplate(context.templates.jsproxyTemplate, generatedFQN, e, vc)
+        context.writeTemplate(context.templates.jsProxyTemplate, generatedFQN, e, vc)
     }
 
     private fun jscallbackNameFromParamspec(mirror: DeclaredType): String {
@@ -135,7 +135,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
             vc.put("retType", retType)
             vc.put("argType", funcArgs.first())
 
-            context.writeTemplate(context.templates.jscallbackTemplate, fqn, null, vc)
+            context.writeTemplate(context.templates.jsCallbackTemplate, fqn, null, vc)
         }
 
         return methodSpec.copy(params = params)
