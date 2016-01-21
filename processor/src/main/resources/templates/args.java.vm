@@ -17,16 +17,4 @@ public final class $className {
     #foreach($p in $params)
         public ${p.typeStr} ${p.name};
     #end
-
-    @JsonCreator
-    public ${className}(
-    #foreach($p in $params)
-        @JsonProperty("${p.name}") ${p.typeStr} ${p.name}
-        #if($foreach.hasNext),#end
-    #end
-    ) {
-        #foreach($p in $params)
-            this.${p.name} = ${p.name};
-        #end
-    }
 }

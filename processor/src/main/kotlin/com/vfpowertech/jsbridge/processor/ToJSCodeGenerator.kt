@@ -22,17 +22,12 @@ data class MethodInfo(val name: String, val params: List<ParamInfo>, val returnT
 
 /*
 1) find methods, their params and return types
-2) Generate: *Args class, serializers for param types (recursively)
-    serializers must be reused (similar to JSCallbacks)
-    so type fqn -> serializer fqn
-    serializers should only be applied to:
-        struct-style classes? (do this to start, simplier; just generate a class with a JsonPropertyOrder)
-        bean-style data classes (get/set method)
-            this lets us add in method calls after
-    check type for com.fasterxml.jackson.annotation.JsonSerialize, JsonProperty, JsonPropertyOrder
-    ** don't need serializers for POJOs
-3) Keep track of serializer classes, then add them to the object mapper at creation time
-    probably need a static objectmapper/pkg for this; otherwise we need to recursively add every type
+2) Generate: *Args class
+    design decision:
+        no serializers are generated for your own types; if they're POJOs jackson can serializer them without any intervention
+        otherwise, annotate them or just mixins as appropriate
+    rationale:
+        makes generation vastly simpler, as well as letting the library user make their own decisions about serialization when required
 */
 fun ClassInfo.getReferencedTypes(): Map<String,  TypeMirror> {
     //can't compare TypeMirrors directly, as the docs state that there's no guarantee that the same type will always
