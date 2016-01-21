@@ -42,7 +42,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         val methodGenerationInfo = ArrayList<MethodGenerationInfo>()
         //generate method arg classes
         for (methodSpec in classSpec.methods) {
-            val newSpec = preprocessMethodSpec(generatedPkg, classSpec, methodSpec)
+            val newSpec = preprocessMethodSpec(classSpec, methodSpec)
             generateCodeForMethodParams(generatedPkg, classSpec, newSpec, e)
 
             val argNames = methodSpec.params.map { it.name }
@@ -92,7 +92,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         return builder.toString()
     }
 
-    private fun preprocessMethodSpec(pkg: String, classSpec: ClassSpec, methodSpec: MethodSpec): MethodSpec {
+    private fun preprocessMethodSpec(classSpec: ClassSpec, methodSpec: MethodSpec): MethodSpec {
         val methodFQN = "${classSpec.name}.${methodSpec.name}"
 
         val params = ArrayList<ParamSpec>()
