@@ -1,12 +1,10 @@
 package com.vfpowertech.jsbridge.processor
 
-import org.apache.velocity.Template
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.RuntimeConstants
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import java.io.BufferedWriter
-import java.io.File
 import java.util.*
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
@@ -151,14 +149,7 @@ class Processor : AbstractProcessor() {
     }
 
     private var initialized = false
-    private lateinit var jsBuildDir: File
-    private lateinit var jsCallbackPackage: String
-    private lateinit var jsProxySubpackageName: String
-    private lateinit var velocityEngine: VelocityEngine
-    private lateinit var jsproxyTemplate: Template
-    private lateinit var argsTemplate: Template
-    private lateinit var jscallbackTemplate: Template
-    private val generatedClasses = HashSet<String>()
+    private lateinit var context: GenerationContext
     //list of generated JSCallback* classes
     private val generatedCallbacks = HashSet<String>()
 
@@ -175,32 +166,28 @@ class Processor : AbstractProcessor() {
             return false
 
         if (!initialized) {
-            val p = processingEnv.options["jsBuildDir"]
-            if (p == null) {
-                logError("Missing jsBuildDir option")
+            val options = try {
+                GenerationOptions.fromAPTOptions(processingEnv.options)
+            }
+            catch (e: GenerationOptionException) {
+                logError(e.message!!)
                 return true
             }
-            jsBuildDir = File(p)
-
-            val pkg = processingEnv.options["jsCallbackPackage"]
-            if (pkg == null) {
-                logError("Missing jsCallbackPackage")
-                return true
-            }
-            jsCallbackPackage = pkg
-
-            jsProxySubpackageName = processingEnv.options["jsProxySubpackageName"] ?: "jsproxy"
 
             val props = Properties()
             props.setProperty("runtime.references.strict", "true")
-            velocityEngine = VelocityEngine(props)
+            val velocityEngine = VelocityEngine(props)
             velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath")
             velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader::class.java.name)
             velocityEngine.init()
 
-            jsproxyTemplate = velocityEngine.getTemplate("templates/jsproxy.java.vm")
-            argsTemplate = velocityEngine.getTemplate("templates/args.java.vm")
-            jscallbackTemplate = velocityEngine.getTemplate("templates/jscallback.java.vm")
+            val templates = Templates(
+                velocityEngine,
+                velocityEngine.getTemplate("templates/jsproxy.java.vm"),
+                velocityEngine.getTemplate("templates/args.java.vm"),
+                velocityEngine.getTemplate("templates/jscallback.java.vm"))
+
+            context = GenerationContext(processingEnv, options,  templates)
         }
 
         for (e in roundEnv.getElementsAnnotatedWith(Generate::class.java)) {
@@ -213,9 +200,6 @@ class Processor : AbstractProcessor() {
         return true
     }
 
-    private fun generateCodeForJS(e: TypeElement) {
-    }
-
     private fun generateCodeFor(e: TypeElement) {
         val fqn = e.qualifiedName
         val idx = fqn.lastIndexOf('.')
@@ -224,7 +208,7 @@ class Processor : AbstractProcessor() {
 
         //generated files go into <qualified-name>.js.<name>JSProxy
         val pkg = fqn.substring(0, idx)
-        val generatedPkg = "$pkg.$jsProxySubpackageName"
+        val generatedPkg = "$pkg.${context.options.jsProxySubpackageName}"
         val className = fqn.substring(idx+1)
         val generatedClassName = "${className}JSProxy"
         val generatedFQN = "$generatedPkg.$generatedClassName"
@@ -261,7 +245,7 @@ class Processor : AbstractProcessor() {
         val jfo = processingEnv.filer.createSourceFile(generatedFQN, e)
 
         BufferedWriter(jfo.openWriter()).use {
-            jsproxyTemplate.merge(vc, it)
+            context.templates.jsproxyTemplate.merge(vc, it)
         }
     }
 
@@ -305,7 +289,7 @@ class Processor : AbstractProcessor() {
                 continue
             }
             val jscallbackName = jscallbackNameFromParamspec(mirror as DeclaredType)
-            val fqn = "$jsCallbackPackage.$jscallbackName"
+            val fqn = "${context.options.jsCallbackPackage}.$jscallbackName"
             val newParamSpec = p.copy(typeStr = fqn)
             params.add(newParamSpec)
 
@@ -319,7 +303,7 @@ class Processor : AbstractProcessor() {
             val sig = getTypeWithoutBounds(mirror)
             val (retType, funcArgs) = getFunctionTypes(mirror)
             val vc = VelocityContext()
-            vc.put("package", jsCallbackPackage)
+            vc.put("package", context.options.jsCallbackPackage)
             vc.put("className", jscallbackName)
             vc.put("functionSig", sig)
             vc.put("retType", retType)
@@ -327,7 +311,7 @@ class Processor : AbstractProcessor() {
 
             val jfo = processingEnv.filer.createSourceFile(fqn)
             BufferedWriter(jfo.openWriter()).use {
-                jscallbackTemplate.merge(vc, it)
+                context.templates.jscallbackTemplate.merge(vc, it)
             }
         }
 
@@ -351,7 +335,7 @@ class Processor : AbstractProcessor() {
 
         val jfo = processingEnv.filer.createSourceFile(fqn, e)
         BufferedWriter(jfo.openWriter()).use {
-            argsTemplate.merge(vc, it)
+            context.templates.argsTemplate.merge(vc, it)
         }
     }
 
