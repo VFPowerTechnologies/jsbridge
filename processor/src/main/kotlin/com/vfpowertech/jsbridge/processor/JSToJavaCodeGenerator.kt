@@ -55,7 +55,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         //generate method arg classes
         for (methodSpec in classSpec.methods) {
             val newSpec = preprocessMethodSpec(classSpec, methodSpec)
-            generateCodeForMethodParams(generatedPkg, classSpec, newSpec, e)
+            generateCodeForMethodParams(context, generatedPkg, classSpec, newSpec, e)
 
             val argNames = methodSpec.params.map { it.name }
             val argsType = getMethodArgsClassName(classSpec, newSpec)
@@ -139,24 +139,6 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         }
 
         return methodSpec.copy(params = params)
-    }
-
-    private fun generateCodeForMethodParams(pkg: String, classSpec: ClassSpec, methodSpec: MethodSpec, e: TypeElement) {
-        //don't generate empty params
-        if (methodSpec.params.isEmpty())
-            return
-
-        val className = getMethodArgsClassName(classSpec, methodSpec)
-        val fqn = "$pkg.$className"
-
-        val vc = VelocityContext()
-        vc.put("package", pkg)
-        vc.put("className", className)
-        vc.put("params", methodSpec.params)
-
-        context.logInfo("Generating $fqn")
-
-        context.writeTemplate(context.templates.argsTemplate, fqn, e, vc)
     }
 
     private fun generateClassSpecFor(cls: TypeElement): ClassSpec {

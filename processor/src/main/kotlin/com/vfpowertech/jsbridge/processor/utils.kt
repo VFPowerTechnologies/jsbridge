@@ -1,7 +1,9 @@
 package com.vfpowertech.jsbridge.processor
 
+import org.apache.velocity.VelocityContext
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
@@ -101,4 +103,22 @@ fun getTypeWithoutBounds(mirror: TypeMirror): String {
     val builder = StringBuilder()
     buildTypeStr(mirror, builder)
     return builder.toString()
+}
+
+fun generateCodeForMethodParams(context: GenerationContext, pkg: String, classSpec: ClassSpec, methodSpec: MethodSpec, e: TypeElement) {
+    //don't generate empty params
+    if (methodSpec.params.isEmpty())
+        return
+
+    val className = getMethodArgsClassName(classSpec, methodSpec)
+    val fqn = "$pkg.$className"
+
+    val vc = VelocityContext()
+    vc.put("package", pkg)
+    vc.put("className", className)
+    vc.put("params", methodSpec.params)
+
+    context.logInfo("Generating $fqn")
+
+    context.writeTemplate(context.templates.argsTemplate, fqn, e, vc)
 }
