@@ -19,7 +19,6 @@ data class GenerationOptions(
                 File(p),
                 pkg,
                 proxySubpackage)
-
         }
     }
 }
