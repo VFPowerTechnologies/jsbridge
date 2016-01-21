@@ -46,7 +46,7 @@ fun ClassInfo.getReferencedTypes(): Map<String,  TypeMirror> {
     return referencedTypes
 }
 
-class ToJSCodeGenerator(private val context: GenerationContext) {
+class JavaToJSCodeGenerator(private val context: GenerationContext) {
     fun generate(elements: Set<Element>) {
         val classes = ArrayList<ClassInfo>()
         val referencedTypes = HashMap<String, TypeMirror>()

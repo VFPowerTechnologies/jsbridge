@@ -194,8 +194,8 @@ class Processor : AbstractProcessor() {
             generateCodeFor(e as TypeElement)
         }
 
-        val toJSCodeGenerator = ToJSCodeGenerator(context)
-        toJSCodeGenerator.generate(roundEnv.getElementsAnnotatedWith(JSGenerate::class.java))
+        val javaToJSCodeGenerator = JavaToJSCodeGenerator(context)
+        javaToJSCodeGenerator.generate(roundEnv.getElementsAnnotatedWith(JSGenerate::class.java))
 
         return true
     }
