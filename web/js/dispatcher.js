@@ -6,37 +6,6 @@
 function deserializeException(exc, reject) {
 };
 
-function SampleService() {
-};
-
-SampleService.prototype.getValue = function () {
-    return new Promise(function (resolve, reject) {
-        function deserializeValue(value) {
-            var v = JSON.parse(value);
-            //TODO assert is int
-            resolve(v);
-        }
-        //TODO deserialize exception
-        window.dispatcher.call("SampleService", "getValue", JSON.stringify([]), deserializeValue, reject)
-    });
-};
-
-SampleService.prototype.setValue = function (value) {
-    return new Promise(function (resolve, reject) {
-        //for functions with no return values
-        window.dispatcher.call("SampleService", "setValue", JSON.stringify([value]), resolve, reject)
-    });
-};
-
-//TODO need to somehow be able to get the proper id to unregister
-//need to keep a reverse map of callback -> id in the dispatcher
-SampleService.prototype.addListener = function (callback) {
-    return new Promise(function (resolve, reject) {
-        //for functions with a callback
-        window.dispatcher.call("SampleService", "addListener", JSON.stringify([dispatcher.createListener(callback)]), resolve, reject)
-    });
-};
-
 //XXX might be better to keep separate maps for callbacks and listeners? no need to verify ids before putting them in, etc
 function Dispatcher() {
     //TODO replace with guid (or just check to make sure there's not already such a
@@ -126,36 +95,4 @@ if (window.nativeDispatcher === undefined) {
     }
     else
         console.log('Unsupported platform');
-}
-
-dispatcher = new Dispatcher();
-sampleService = new SampleService()
-
-sampleService.getValue().then(function (value) {
-    console.log("Got value: " + value);
-}).catch(function (exc) {
-    console.log("Got error: " + exc);
-});
-
-sampleService.setValue(1).then(function () {
-    console.log("Value successfully set");
-}).catch(function (exc) {
-    console.log("Error setting value");
-});
-
-sampleService.addListener(function (v) {
-    console.log("Listener got value: " + v);
-}).then(function () {
-    console.log("Listener added");
-}).catch(function (exc) {
-    console.log("Failed to add listener: " + exc);
-});
-
-jsService = {
-    syncFn: function (v, n, resolve, reject) {
-        console.log("syncFn(" + v + ")");
-        resolve({"p": v.q+n, "q" : v.q});
-    },
-    asyncFn: function (resolve, reject) {
-    }
 }
