@@ -3,8 +3,6 @@ package com.vfpowertech.jsbridge.processor
 import org.apache.velocity.VelocityContext
 import java.util.*
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -45,7 +43,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         //a) async (retval is Promise)
         //b) sync (retval is not Promise)
         //also need to handle FunctionN params since they need to be wrapped
-        val classSpec = generateClassSpecFor(e)
+        val classSpec = validateClassSpec(generateClassSpecFor(e))
 
         val methodGenerationInfo = ArrayList<MethodGenerationInfo>()
         //generate method arg classes
@@ -70,6 +68,19 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         vc.put("methods", methodGenerationInfo)
 
         context.writeTemplate(context.templates.jsProxyTemplate, generatedFQN, e, vc)
+    }
+
+    private fun validateClassSpec(classSpec: ClassSpec): ClassSpec {
+        val newMethodSpecs = ArrayList<MethodSpec>()
+
+        for (methodSpec in classSpec.methods) {
+            if (methodSpec.element.getAnnotation(Exclude::class.java) != null)
+                continue
+
+            newMethodSpecs.add(methodSpec)
+        }
+
+        return classSpec.copy(methods = newMethodSpecs)
     }
 
     private fun jscallbackNameFromParamspec(mirror: DeclaredType): String {
@@ -135,32 +146,5 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         }
 
         return methodSpec.copy(params = params)
-    }
-
-    private fun generateClassSpecFor(cls: TypeElement): ClassSpec {
-        val methods = ArrayList<MethodSpec>()
-
-        for (ee in cls.enclosedElements) {
-            if (ee.kind != ElementKind.METHOD)
-                continue
-
-            if (ee.getAnnotation(Exclude::class.java) != null)
-                continue
-
-            val m = ee as ExecutableElement
-            val methodName = m.simpleName.toString()
-            val returnType = m.returnType
-            val params = ArrayList<ParamSpec>()
-
-            for (p in m.parameters) {
-                val paramName = p.simpleName.toString()
-                val type = p.asType()
-                params.add(ParamSpec(paramName, type))
-            }
-
-            methods.add(MethodSpec(methodName, params, returnType))
-        }
-
-        return ClassSpec(cls.simpleName.toString(), cls.asType() as DeclaredType, methods)
     }
 }

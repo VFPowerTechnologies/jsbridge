@@ -6,6 +6,7 @@ import javax.lang.model.type.DeclaredType
 //TODO handle generics (List<Set<String>>, etc)
 data class ClassSpec(
     val name: String,
+    val element: TypeElement,
     val type: DeclaredType,
     val methods: List<MethodSpec>
 ) {

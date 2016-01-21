@@ -3,12 +3,38 @@ package com.vfpowertech.jsbridge.processor
 import org.apache.velocity.VelocityContext
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
+
+fun generateClassSpecFor(cls: TypeElement): ClassSpec {
+    val methods = ArrayList<MethodSpec>()
+
+    for (ee in cls.enclosedElements) {
+        if (ee.kind != ElementKind.METHOD)
+            continue
+
+        ee as ExecutableElement
+        val methodName = ee.simpleName.toString()
+        val returnType = ee.returnType
+        val params = ArrayList<ParamSpec>()
+
+        for (p in ee.parameters) {
+            val paramName = p.simpleName.toString()
+            val type = p.asType()
+            params.add(ParamSpec(paramName, p, type))
+        }
+
+        methods.add(MethodSpec(methodName, ee, params, returnType))
+    }
+
+    return ClassSpec(cls.simpleName.toString(), cls, cls.asType() as DeclaredType, methods)
+}
 
 fun getMethodArgsClassName(classSpec: ClassSpec, methodSpec: MethodSpec): String =
     "${classSpec.name}${methodSpec.name.capitalize()}Args"

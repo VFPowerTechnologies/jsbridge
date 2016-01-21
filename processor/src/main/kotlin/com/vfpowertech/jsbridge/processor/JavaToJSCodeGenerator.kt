@@ -2,8 +2,6 @@ package com.vfpowertech.jsbridge.processor
 
 import java.util.*
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
@@ -40,7 +38,7 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
         val classes = ArrayList<ClassSpec>()
         val referencedTypes = HashMap<String, TypeMirror>()
         for (e in elements) {
-            val classInfo = generateClassSpecFor(e as TypeElement)
+            val classInfo = validateClassSpec(generateClassSpecFor(e as TypeElement))
             classes.add(classInfo)
             referencedTypes.putAll(classInfo.getReferencedTypes())
         }
@@ -67,34 +65,20 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
         return typeUtils.isSubtype(typeUtils.erasure(mirror), typeUtils.erasure(promiseType))
     }
 
-    //TODO split this off and merge with older impl
-    private fun generateClassSpecFor(cls: TypeElement): ClassSpec {
-        val className = cls.simpleName.toString()
-        val methods = ArrayList<MethodSpec>()
+    private fun validateClassSpec(classSpec: ClassSpec): ClassSpec {
+        val newMethodSpecs = ArrayList<MethodSpec>()
 
-        for (e in cls.enclosedElements) {
-            if (e.kind != ElementKind.METHOD)
-                continue
-            e as ExecutableElement
+        for (methodSpec in classSpec.methods) {
+            if (!isValidReturnType(methodSpec.returnType))
+                throw IllegalArgumentException(
+                    "${classSpec.name}.${methodSpec.name} has an invalid return type; only methods with a return type of nl.komponents.kovenant.Promise are allowed, found ${methodSpec.returnType}")
 
-            val methodName = e.simpleName.toString()
-            val returnType = e.returnType
-            val params = ArrayList<ParamSpec>()
+            val actualReturnType = extractReturnTypeValueType(methodSpec.returnType as DeclaredType)
 
-            if (!isValidReturnType(returnType))
-                throw IllegalArgumentException("$className.$methodName has an invalid return type; only methods with a return type of nl.komponents.kovenant.Promise are allowed")
-
-            val actualReturnType = extractReturnTypeValueType(returnType as DeclaredType)
-
-            for (pe in e.parameters) {
-                val paramInfo = ParamSpec(pe.simpleName.toString(), pe.asType())
-                params.add(paramInfo)
-            }
-
-            val methodInfo = MethodSpec(methodName, params, actualReturnType)
-            methods.add(methodInfo)
+            //Elements no longer match...
+            newMethodSpecs.add(methodSpec.copy(returnType = actualReturnType))
         }
 
-        return ClassSpec(className, cls.asType() as DeclaredType, methods)
+        return classSpec.copy(methods = newMethodSpecs)
     }
 }
