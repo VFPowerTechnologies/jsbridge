@@ -51,7 +51,8 @@ data class ClassSpec(
 )
 
 @SupportedAnnotationTypes(
-    "com.vfpowertech.jsbridge.processor.Generate"
+    "com.vfpowertech.jsbridge.processor.Generate",
+    "com.vfpowertech.jsbridge.processor.JSGenerate"
 )
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions("jsBuildDir", "jsCallbackPackage", "jsProxySubpackageName")
@@ -206,7 +207,13 @@ class Processor : AbstractProcessor() {
             generateCodeFor(e as TypeElement)
         }
 
+        val toJSCodeGenerator = ToJSCodeGenerator(processingEnv)
+        toJSCodeGenerator.generate(roundEnv.getElementsAnnotatedWith(JSGenerate::class.java))
+
         return true
+    }
+
+    private fun generateCodeForJS(e: TypeElement) {
     }
 
     private fun generateCodeFor(e: TypeElement) {
@@ -378,3 +385,4 @@ class Processor : AbstractProcessor() {
         return ClassSpec(cls.simpleName.toString(), methods)
     }
 }
+
