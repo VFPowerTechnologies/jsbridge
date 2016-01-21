@@ -33,9 +33,6 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
     private fun generateCodeFor(e: TypeElement) {
         val fqn = e.qualifiedName
-        val idx = fqn.lastIndexOf('.')
-        if (idx <= 0)
-            throw IllegalArgumentException("Annotated objects must be in a package: $fqn")
 
         //generated files go into <qualified-name>.<jsProxySubpackageName>.<name>JSProxy
         val (pkg, className) = splitPackageClass(fqn)
@@ -164,6 +161,6 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
             methods.add(MethodSpec(methodName, params, returnType))
         }
 
-        return ClassSpec(cls.simpleName.toString(), methods)
+        return ClassSpec(cls.simpleName.toString(), cls.asType() as DeclaredType, methods)
     }
 }

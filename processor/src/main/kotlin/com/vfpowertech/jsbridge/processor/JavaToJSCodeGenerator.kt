@@ -8,15 +8,6 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-/*
-1) find methods, their params and return types
-2) Generate: *Args class
-    design decision:
-        no serializers are generated for your own types; if they're POJOs jackson can serializer them without any intervention
-        otherwise, annotate them or just mixins as appropriate
-    rationale:
-        makes generation vastly simpler, as well as letting the library user make their own decisions about serialization when required
-*/
 fun ClassSpec.getReferencedTypes(): Map<String,  TypeMirror> {
     //can't compare TypeMirrors directly, as the docs state that there's no guarantee that the same type will always
     //be ref'ed by the same object
@@ -35,6 +26,15 @@ fun ClassSpec.getReferencedTypes(): Map<String,  TypeMirror> {
     return referencedTypes
 }
 
+/*
+1) find methods, their params and return types
+2) Generate: *Args class
+    design decision:
+        no serializers are generated for your own types; if they're POJOs jackson can serializer them without any intervention
+        otherwise, annotate them or just mixins as appropriate
+    rationale:
+        makes generation vastly simpler, as well as letting the library user make their own decisions about serialization when required
+*/
 class JavaToJSCodeGenerator(private val context: GenerationContext) {
     fun generate(elements: Set<Element>) {
         val classes = ArrayList<ClassSpec>()
@@ -43,6 +43,15 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
             val classInfo = generateClassSpecFor(e as TypeElement)
             classes.add(classInfo)
             referencedTypes.putAll(classInfo.getReferencedTypes())
+        }
+
+        for (classSpec in classes) {
+            for (methodSpec in classSpec.methods) {
+                val fqn = classSpec.fqn
+                val (pkg, className) = splitPackageClass(fqn)
+                val generatedPkg = "$pkg.${context.options.jsProxySubpackageName}"
+                generateCodeForMethodParams(context, generatedPkg, classSpec, methodSpec, classSpec.asTypeElement())
+            }
         }
     }
 
@@ -58,8 +67,9 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
         return typeUtils.isSubtype(typeUtils.erasure(mirror), typeUtils.erasure(promiseType))
     }
 
+    //TODO split this off and merge with older impl
     private fun generateClassSpecFor(cls: TypeElement): ClassSpec {
-        val className = cls.qualifiedName.toString()
+        val className = cls.simpleName.toString()
         val methods = ArrayList<MethodSpec>()
 
         for (e in cls.enclosedElements) {
@@ -85,6 +95,6 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
             methods.add(methodInfo)
         }
 
-        return ClassSpec(className, methods)
+        return ClassSpec(className, cls.asType() as DeclaredType, methods)
     }
 }
