@@ -54,7 +54,7 @@ data class ClassSpec(
     "com.vfpowertech.jsbridge.processor.Generate"
 )
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedOptions("jsBuildDir", "jscallbackPackage")
+@SupportedOptions("jsBuildDir", "jsCallbackPackage", "jsProxySubpackageName")
 class Processor : AbstractProcessor() {
     companion object {
         fun getMethodArgsClassName(classSpec: ClassSpec, methodSpec: MethodSpec): String =
@@ -151,7 +151,8 @@ class Processor : AbstractProcessor() {
 
     private var initialized = false
     private lateinit var jsBuildDir: File
-    private lateinit var jscallbackPackage: String
+    private lateinit var jsCallbackPackage: String
+    private lateinit var jsProxySubpackageName: String
     private lateinit var velocityEngine: VelocityEngine
     private lateinit var jsproxyTemplate: Template
     private lateinit var argsTemplate: Template
@@ -180,12 +181,14 @@ class Processor : AbstractProcessor() {
             }
             jsBuildDir = File(p)
 
-            val pkg = processingEnv.options["jscallbackPackage"]
+            val pkg = processingEnv.options["jsCallbackPackage"]
             if (pkg == null) {
-                logError("Missing jscallbackPackage")
+                logError("Missing jsCallbackPackage")
                 return true
             }
-            jscallbackPackage = pkg
+            jsCallbackPackage = pkg
+
+            jsProxySubpackageName = processingEnv.options["jsProxySubpackageName"] ?: "jsproxy"
 
             val props = Properties()
             props.setProperty("runtime.references.strict", "true")
@@ -214,7 +217,7 @@ class Processor : AbstractProcessor() {
 
         //generated files go into <qualified-name>.js.<name>JSProxy
         val pkg = fqn.substring(0, idx)
-        val generatedPkg = "$pkg.js"
+        val generatedPkg = "$pkg.$jsProxySubpackageName"
         val className = fqn.substring(idx+1)
         val generatedClassName = "${className}JSProxy"
         val generatedFQN = "$generatedPkg.$generatedClassName"
@@ -295,7 +298,7 @@ class Processor : AbstractProcessor() {
                 continue
             }
             val jscallbackName = jscallbackNameFromParamspec(mirror as DeclaredType)
-            val fqn = "$jscallbackPackage.$jscallbackName"
+            val fqn = "$jsCallbackPackage.$jscallbackName"
             val newParamSpec = p.copy(typeStr = fqn)
             params.add(newParamSpec)
 
@@ -309,7 +312,7 @@ class Processor : AbstractProcessor() {
             val sig = getTypeWithoutBounds(mirror)
             val (retType, funcArgs) = getFunctionTypes(mirror)
             val vc = VelocityContext()
-            vc.put("package", jscallbackPackage)
+            vc.put("package", jsCallbackPackage)
             vc.put("className", jscallbackName)
             vc.put("functionSig", sig)
             vc.put("retType", retType)

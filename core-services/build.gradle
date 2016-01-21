@@ -14,7 +14,7 @@ kapt {
     generateStubs = true
     arguments {
         arg("jsBuildDir", "$buildDir/generated/js")
-        arg("jscallbackPackage", "com.vfpowertech.jsbridge.jscallback")
+        arg("jsCallbackPackage", "com.vfpowertech.jsbridge.core.services.jscallback")
     }
 }
 

@@ -33,7 +33,7 @@ class App : Application() {
         val dispatcher = Dispatcher(JFXWebEngineInterface(engine))
 
         val sampleService = com.vfpowertech.jsbridge.core.services.SampleService()
-        dispatcher.registerService("SampleService", com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy(sampleService, dispatcher))
+        dispatcher.registerService("SampleService", com.vfpowertech.jsbridge.core.services.jsproxy.SampleServiceJSProxy(sampleService, dispatcher))
 
         val btnBox = HBox()
         vb.children.add(btnBox)
