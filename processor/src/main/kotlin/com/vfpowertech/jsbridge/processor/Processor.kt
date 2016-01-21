@@ -54,7 +54,7 @@ data class ClassSpec(
     "com.vfpowertech.jsbridge.processor.Generate"
 )
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedOptions("jsBuildDir")
+@SupportedOptions("jsBuildDir", "jscallbackPackage")
 class Processor : AbstractProcessor() {
     companion object {
         fun getMethodArgsClassName(classSpec: ClassSpec, methodSpec: MethodSpec): String =
@@ -151,6 +151,7 @@ class Processor : AbstractProcessor() {
 
     private var initialized = false
     private lateinit var jsBuildDir: File
+    private lateinit var jscallbackPackage: String
     private lateinit var velocityEngine: VelocityEngine
     private lateinit var jsproxyTemplate: Template
     private lateinit var argsTemplate: Template
@@ -178,6 +179,13 @@ class Processor : AbstractProcessor() {
                 return true
             }
             jsBuildDir = File(p)
+
+            val pkg = processingEnv.options["jscallbackPackage"]
+            if (pkg == null) {
+                logError("Missing jscallbackPackage")
+                return true
+            }
+            jscallbackPackage = pkg
 
             val props = Properties()
             props.setProperty("runtime.references.strict", "true")
@@ -287,11 +295,10 @@ class Processor : AbstractProcessor() {
                 continue
             }
             val jscallbackName = jscallbackNameFromParamspec(mirror as DeclaredType)
-            val newParamSpec = p.copy(typeStr = jscallbackName)
+            val fqn = "$jscallbackPackage.$jscallbackName"
+            val newParamSpec = p.copy(typeStr = fqn)
             params.add(newParamSpec)
 
-            //XXX can be more efficient and not generate them per package
-            val fqn = "$pkg.$jscallbackName"
             if (fqn in generatedCallbacks)
                 continue
 
@@ -302,7 +309,7 @@ class Processor : AbstractProcessor() {
             val sig = getTypeWithoutBounds(mirror)
             val (retType, funcArgs) = getFunctionTypes(mirror)
             val vc = VelocityContext()
-            vc.put("package", pkg)
+            vc.put("package", jscallbackPackage)
             vc.put("className", jscallbackName)
             vc.put("functionSig", sig)
             vc.put("retType", retType)
