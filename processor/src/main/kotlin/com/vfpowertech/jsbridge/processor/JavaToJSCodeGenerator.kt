@@ -55,16 +55,6 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
             classes.add(classInfo)
             referencedTypes.putAll(classInfo.getReferencedTypes())
         }
-
-        val serializers = generateSerializers(referencedTypes)
-    }
-
-    //class fqn->serializer class
-    private fun generateSerializers(referencedTypes: MutableMap<String, TypeMirror>): Map<String, String> {
-        println(referencedTypes)
-        val serializers = HashMap<String, String>()
-
-        return serializers
     }
 
     //assuming a Promise<V, E>, return V
