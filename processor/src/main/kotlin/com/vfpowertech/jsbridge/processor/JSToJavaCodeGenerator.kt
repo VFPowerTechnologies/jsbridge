@@ -37,10 +37,9 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         if (idx <= 0)
             throw IllegalArgumentException("Annotated objects must be in a package: $fqn")
 
-        //generated files go into <qualified-name>.js.<name>JSProxy
-        val pkg = fqn.substring(0, idx)
+        //generated files go into <qualified-name>.<jsProxySubpackageName>.<name>JSProxy
+        val (pkg, className) = splitPackageClass(fqn)
         val generatedPkg = "$pkg.${context.options.jsProxySubpackageName}"
-        val className = fqn.substring(idx+1)
         val generatedClassName = "${className}JSProxy"
         val generatedFQN = "$generatedPkg.$generatedClassName"
         context.logInfo("Generating $generatedFQN")

@@ -122,3 +122,15 @@ fun generateCodeForMethodParams(context: GenerationContext, pkg: String, classSp
 
     context.writeTemplate(context.templates.argsTemplate, fqn, e, vc)
 }
+
+/**
+ * Returns (packageName, className) from a FQN.
+ */
+fun splitPackageClass(fqn: CharSequence): Pair<String, String> {
+    val idx = fqn.lastIndexOf('.')
+    if (idx <= 0)
+        throw IllegalArgumentException("Annotated objects must be in a package: $fqn")
+    val pkg = fqn.substring(0, idx)
+    val className = fqn.substring(idx+1)
+    return pkg to className
+}
