@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher;
+import static com.vfpowertech.jsbridge.core.dispatcher.Utils.exceptionToJSONString;
 
 @javax.annotation.Generated("jsbridge")
 public final class $className implements com.vfpowertech.jsbridge.core.dispatcher.JSProxy {
@@ -36,32 +37,45 @@ public final class $className implements com.vfpowertech.jsbridge.core.dispatche
                     throw new RuntimeException(e);
                 }
             #end
-            #if($m.hasRetVal)
-            ${m.returnType} value =
-            #end
-            service.${m.name}(
-                #foreach($a in ${m.argNames})
-                args.$a
-                #if($foreach.hasNext),#end
-                #end
-            );
-            #if($m.hasRetVal)
-            String json;
             try {
-                json = objectMapper.writeValueAsString(value);
+                #if($m.hasRetVal)
+                ${m.returnType} value =
+                #end
+                service.${m.name}(
+                    #foreach($a in ${m.argNames})
+                    args.$a
+                    #if($foreach.hasNext),#end
+                    #end
+                );
+                #if($m.hasRetVal)
+                String json;
+                try {
+                    json = objectMapper.writeValueAsString(value);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                #end
+
+                dispatcher.sendValueBackToJS(callbackId,
+                    #if($m.hasRetVal)
+                    json,
+                    #else
+                    null,
+                    #end
+                    false
+                );
+
             }
             catch (Exception e) {
-                throw new RuntimeException(e);
+                try {
+                    String json = exceptionToJSONString(e);
+                    dispatcher.sendValueBackToJS(callbackId, json, true);
+                }
+                catch (Exception e2) {
+                    log.error("Unable to serialize exception for callbackId={}: {}", callbackId, e2.getMessage(), e2);
+                }
             }
-            #end
-
-            dispatcher.sendValueBackToJS(callbackId,
-                #if($m.hasRetVal)
-                json
-                #else
-                null
-                #end
-            );
 
             return;
         }

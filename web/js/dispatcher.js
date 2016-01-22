@@ -1,9 +1,13 @@
 //TODO
 //We need to map each java type we send back to a js class from json
 
-//TODO
-//calls reject with the deserialized value of exc
-function deserializeException(exc, reject) {
+var JavaError = require('./java-error');
+
+function deserializeJavaException(repr) {
+    return new JavaError(
+        repr.message,
+        repr.type,
+        repr.stacktrace);
 };
 
 //XXX might be better to keep separate maps for callbacks and listeners? no need to verify ids before putting them in, etc
@@ -66,7 +70,7 @@ Dispatcher.prototype.sendValue = function (callbackId, isError, value) {
         delete this._callbacks[callbackId];
 
     if (isError)
-        reject(value);
+        reject(deserializeJavaException(value));
     else
         resolve(value);
 };

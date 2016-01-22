@@ -5,7 +5,7 @@ function ${className}() {
 }
 
 #foreach($m in $methods)
-${className}.prototype.${m.name}(
+${className}.prototype.${m.name} = function (
 #foreach($p in $m.params)
 $p.name
 #if($foreach.hasNext),#end
@@ -28,12 +28,7 @@ $p.name
             }
         #end
 
-        //TODO
-        function deserializeException(e) {
-            reject(e);
-        }
-
-        window.dispatcher.call("$className", "$m.name", JSON.stringify(args), deserializeValue, deserializeException);
+        window.dispatcher.call("$className", "$m.name", JSON.stringify(args), deserializeValue, reject);
     });
 }
 

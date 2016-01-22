@@ -14,6 +14,10 @@ class SampleService {
         listeners.add(listener)
     }
 
+    fun throwException() {
+        throw RuntimeException("Java exception occured")
+    }
+
     @Exclude
     fun badArgCount(listener: (Int, String) -> Unit) {
 

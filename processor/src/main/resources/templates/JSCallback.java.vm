@@ -34,7 +34,7 @@ public final class $className implements $functionSig {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(arg0);
-            dispatcher.sendValueBackToJS(callbackId, json);
+            dispatcher.sendValueBackToJS(callbackId, json, false);
         }
         catch (Exception e) {
             throw new RuntimeException(e);

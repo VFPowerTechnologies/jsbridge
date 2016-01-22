@@ -24,3 +24,12 @@ sampleService.addListener(function (v) {
 }).catch(function (exc) {
     console.log("Failed to add listener: " + exc);
 });
+
+document.getElementById('throwJavaBtn').addEventListener('click', function (ev) {
+    console.log('Calling throwing function');
+    sampleService.throwException().then(function () {
+        console.log("Didn't receive exception");
+    }).catch(function (exc) {
+        console.log('Received java exception: ' + exc);
+    })
+}, false);

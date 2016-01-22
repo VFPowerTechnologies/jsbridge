@@ -39,10 +39,10 @@ class Dispatcher(private val engine: WebEngineInterface) {
         service.call(methodName, methodArgs, callbackId)
     }
 
-    fun sendValueBackToJS(callbackId: String, json: String?) {
+    fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean) {
         log.debug("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
         //TODO need to make sure this is available for each platform
-        engine.runJS("window.dispatcher.sendValue(\"$callbackId\", false, $json);")
+        engine.runJS("window.dispatcher.sendValue(\"$callbackId\", $isError, $json);")
     }
 
     fun sendExcBackToJS(callbackId: String, json: String) {
