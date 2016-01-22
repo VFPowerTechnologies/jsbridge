@@ -8,13 +8,13 @@ window.jsService = require('./service/js-service').getService();
 sampleService.getValue().then(function (value) {
     console.log("Got value: " + value);
 }).catch(function (exc) {
-    console.log("Got error: " + exc);
+    console.error("Got error: " + exc);
 });
 
 sampleService.setValue(1).then(function () {
     console.log("Value successfully set");
 }).catch(function (exc) {
-    console.log("Error setting value");
+    console.error("Error setting value");
 });
 
 sampleService.addListener(function (v) {
@@ -22,7 +22,8 @@ sampleService.addListener(function (v) {
 }).then(function () {
     console.log("Listener added");
 }).catch(function (exc) {
-    console.log("Failed to add listener: " + exc);
+    console.error("Failed to add listener: " + exc);
+    console.error('Stacktrace:\n' + exc.stacktrace);
 });
 
 document.getElementById('throwJavaBtn').addEventListener('click', function (ev) {
@@ -30,6 +31,6 @@ document.getElementById('throwJavaBtn').addEventListener('click', function (ev) 
     sampleService.throwException().then(function () {
         console.log("Didn't receive exception");
     }).catch(function (exc) {
-        console.log('Received java exception: ' + exc);
+        console.error('Received java exception: ' + exc);
     })
 }, false);

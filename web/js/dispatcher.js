@@ -23,6 +23,8 @@ Dispatcher.prototype.call = function (service, methodName, methodArgs, resolve, 
     var callbackId = this._getNextCallbackId();
     this._callbacks[callbackId] = [resolve, reject, true];
 
+    console.log('js->native: ' + service + '.' + methodName + '(' + methodArgs + ')');
+
     //TODO this needs to be different for each platform
     //so if ios is detected (window.webkit.dispatchers isn't null), do postMessage instead of call()
     window.nativeDispatcher.call(service, methodName, methodArgs, callbackId);

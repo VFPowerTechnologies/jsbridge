@@ -32,7 +32,8 @@ fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement)
         for (p in ee.parameters) {
             val paramName = p.simpleName.toString()
             val type = p.asType()
-            params.add(ParamSpec(paramName, p, type))
+            val isFuncType = isFunctionType(type)
+            params.add(ParamSpec(paramName, p, type, isFuncType))
         }
 
         val hasReturnValue = !isVoidType(processingEnv, returnType)
@@ -80,6 +81,9 @@ fun getFunctionTypes(mirror: TypeMirror): Pair<String, List<String>> {
 
     return retType to argTypes
 }
+
+fun isFunctionType(mirror: TypeMirror): Boolean =
+    mirror.toString().startsWith("kotlin.jvm.functions.Function")
 
 //only support functions with a single arg with a Unit return type right now
 fun checkIfFunctionTypeIsSupported(fqn: String, mirror: TypeMirror): Boolean {

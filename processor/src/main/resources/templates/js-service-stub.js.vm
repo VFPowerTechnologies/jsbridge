@@ -14,7 +14,11 @@ $p.name
     return new Promise(function (resolve, reject) {
         var args = [];
         #foreach($p in $m.params)
+            #if(!$p.isFunctionType())
             args.push($p.name);
+            #else
+            args.push(window.dispatcher.createListener($p.name));
+            #end
         #end
 
         window.dispatcher.call("$className", "$m.name", JSON.stringify(args), resolve, reject);
