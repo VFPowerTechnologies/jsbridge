@@ -46,7 +46,8 @@ class Processor : AbstractProcessor() {
                 velocityEngine,
                 velocityEngine.getTemplate("templates/jsproxy.java.vm"),
                 velocityEngine.getTemplate("templates/args.java.vm"),
-                velocityEngine.getTemplate("templates/jscallback.java.vm"))
+                velocityEngine.getTemplate("templates/jscallback.java.vm"),
+                velocityEngine.getTemplate("templates/JavaToJSProxy.java.vm"))
 
             context = GenerationContext(processingEnv, options, templates)
         }

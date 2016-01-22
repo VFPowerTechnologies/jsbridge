@@ -1,5 +1,6 @@
 package com.vfpowertech.jsbridge.processor
 
+import org.apache.velocity.VelocityContext
 import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
@@ -44,12 +45,31 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
         }
 
         for (classSpec in classes) {
+            val fqn = classSpec.fqn
+            val (pkg, className) = splitPackageClass(fqn)
+
             for (methodSpec in classSpec.methods) {
-                val fqn = classSpec.fqn
-                val (pkg, className) = splitPackageClass(fqn)
-                val generatedPkg = "$pkg.${context.options.jsProxySubpackageName}"
+                val generatedPkg = "$pkg.javaproxy"
                 generateCodeForMethodParams(context, generatedPkg, classSpec, methodSpec, classSpec.asTypeElement())
             }
+
+            val generatedClassName = "${className}Proxy"
+            //TODO make option
+            val generatedPackage = "$pkg.javaproxy"
+            val generatedClassFQN = "$generatedPackage.$generatedClassName"
+
+            val vc = VelocityContext()
+            vc.put("package", generatedPackage)
+            vc.put("className", generatedClassName)
+            vc.put("utils", object {
+                fun getMethodArgsClassName(methodSpec: MethodSpec): String =
+                    getMethodArgsClassName(classSpec, methodSpec)
+            })
+            vc.put("methods", classSpec.methods)
+            vc.put("serviceInterface", classSpec.type)
+
+            context.logInfo("Generating $generatedClassFQN")
+            context.writeTemplate(context.templates.javaToJSProxyTemplate, generatedClassFQN, classSpec.element, vc)
         }
     }
 

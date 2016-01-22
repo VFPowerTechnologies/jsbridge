@@ -42,10 +42,11 @@ class App : Application() {
         btnBox.children.add(notifyBtn)
         notifyBtn.setOnAction { sampleService.callListeners(5) }
 
-        val jsService = JSServiceImpl(dispatcher)
+        val jsService = com.vfpowertech.jsbridge.core.services.js.javaproxy.JSServiceProxy(dispatcher)
         val callBtn = Button("Call JS")
         btnBox.children.add(callBtn)
         callBtn.setOnAction {
+            log.info("Attempting to call JS")
             jsService.syncFn(V(5, 6), 5) success {
                 log.info("Result of syncFn: {}", it)
             } fail {

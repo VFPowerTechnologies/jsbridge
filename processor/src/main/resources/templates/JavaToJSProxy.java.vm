@@ -1,0 +1,71 @@
+package $package;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher;
+import kotlin.jvm.functions.Function1;
+import kotlin.Unit;
+import nl.komponents.kovenant.Kovenant;
+import nl.komponents.kovenant.Promise;
+import nl.komponents.kovenant.Deferred;
+import nl.komponents.kovenant.KovenantApi;
+
+@javax.annotation.Generated("jsbridge")
+public class $className implements $serviceInterface {
+    private Dispatcher dispatcher;
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private Logger log = LoggerFactory.getLogger(${className}.class);
+
+    public $className(Dispatcher dispatcher) {
+        this.dispatcher = dispatcher;
+    }
+
+    #foreach($m in $methods)
+    @Override
+    public Promise<${m.returnType}, Exception> ${m.name}(
+    #foreach($p in $m.params)
+        ${p.type} ${p.name}
+    #if($foreach.hasNext),#end
+    #end
+    ) {
+        #set($argsClassName = $utils.getMethodArgsClassName($m))
+        $argsClassName args = new $argsClassName();
+        #foreach($p in $m.params)
+            args.${p.name} = ${p.name};
+        #end
+
+        String jsonArgs;
+        try {
+            jsonArgs = objectMapper.writeValueAsString(args);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        Deferred<$m.returnType, Exception> deferred = KovenantApi.deferred(Kovenant.INSTANCE.getContext());
+
+        Function1<String, Unit> resolve = (jsonReturnVal) -> {
+            $m.returnType returnVal;
+            try {
+                returnVal = objectMapper.readValue(jsonReturnVal, ${m.returnType}.class);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            deferred.resolve(returnVal);
+            return null;
+        };
+
+        Function1<String, Unit> reject = (jsonExc) -> {
+            //TODO
+            deferred.reject(new RuntimeException(jsonExc));
+            return null;
+        };
+
+        dispatcher.callJS("window.jsService", "$m.name", jsonArgs, resolve, reject);
+
+        return deferred.getPromise();
+    }
+    #end
+}
