@@ -29,26 +29,36 @@ public class $className implements $serviceInterface {
     #if($foreach.hasNext),#end
     #end
     ) {
-        #set($argsClassName = $utils.getMethodArgsClassName($m))
-        $argsClassName args = new $argsClassName();
-        #foreach($p in $m.params)
-            args.${p.name} = ${p.name};
-        #end
+        #if(!$m.params.isEmpty())
+            #set($argsClassName = $utils.getMethodArgsClassName($m))
+            $argsClassName args = new $argsClassName();
+            #foreach($p in $m.params)
+                args.${p.name} = ${p.name};
+            #end
 
-        String jsonArgs;
-        try {
-            jsonArgs = objectMapper.writeValueAsString(args);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            String jsonArgs;
+            try {
+                jsonArgs = objectMapper.writeValueAsString(args);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        #else
+            String jsonArgs = "[]";
+        #end
 
         Deferred<$m.returnType, Exception> deferred = KovenantApi.deferred(Kovenant.INSTANCE.getContext());
 
         Function1<String, Unit> resolve = (jsonReturnVal) -> {
             $m.returnType returnVal;
             try {
-                returnVal = objectMapper.readValue(jsonReturnVal, ${m.returnType}.class);
+                //since we're most likely calling into kotlin code, we need to make sure this isn't null
+                //for java's Void we're ok with null
+                #if($m.returnType.toString() == "kotlin.Unit")
+                    returnVal = kotlin.Unit.INSTANCE;
+                #else
+                    returnVal = objectMapper.readValue(jsonReturnVal, ${m.returnType}.class);
+                #end
             }
             catch (Exception e) {
                 throw new RuntimeException(e);

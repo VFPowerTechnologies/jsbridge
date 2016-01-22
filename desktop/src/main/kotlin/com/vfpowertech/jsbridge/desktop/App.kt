@@ -2,6 +2,7 @@ package com.vfpowertech.jsbridge.desktop
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
+import com.vfpowertech.jsbridge.core.services.js.JSService
 import com.vfpowertech.jsbridge.core.services.js.JSServiceImpl
 import com.vfpowertech.jsbridge.core.services.js.V
 import com.vfpowertech.jsbridge.desktop.console.ConsoleMessageAdded
@@ -42,15 +43,22 @@ class App : Application() {
         btnBox.children.add(notifyBtn)
         notifyBtn.setOnAction { sampleService.callListeners(5) }
 
-        val jsService = com.vfpowertech.jsbridge.core.services.js.javaproxy.JSServiceProxy(dispatcher)
+        val jsService: JSService = com.vfpowertech.jsbridge.core.services.js.javaproxy.JSServiceProxy(dispatcher)
         val callBtn = Button("Call JS")
         btnBox.children.add(callBtn)
         callBtn.setOnAction {
             log.info("Attempting to call JS")
+
             jsService.syncFn(V(5, 6), 5) success {
                 log.info("Result of syncFn: {}", it)
             } fail {
                 log.info("syncFn failed: {}", it)
+            }
+
+            jsService.noArgsFn() success {
+                log.info("noArgsFn succeeded: {}", it)
+            } fail {
+                log.info("noArgsFn failed: {}", it)
             }
         }
 

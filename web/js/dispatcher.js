@@ -33,11 +33,15 @@ Dispatcher.prototype.callFromNative = function (targetStr, methodName, methodArg
     //TODO maybe have variants for sync and async fns
     //for sync, just run the fun and send data back
     var resolve = function (v) {
+        if (v === undefined)
+            v = null;
         nativeDispatcher.callbackFromJS(callbackId, false, JSON.stringify(v));
     };
     args.push(resolve);
 
     var reject = function (v) {
+        if (v === undefined)
+            v = null;
         nativeDispatcher.callbackFromJS(callbackId, true, JSON.stringify(v));
     };
     args.push(reject);
