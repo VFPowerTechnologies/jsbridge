@@ -6,7 +6,9 @@ data class GenerationOptions(
     val jsOutputDir: File,
     val jsCallbackPackage: String,
     val jsToJavaProxySubpackageName: String,
-    val javaToJsProxySubpackageName: String
+    val javaToJsProxySubpackageName: String,
+    val jsToJavaClassSuffix: String,
+    val javaToJSClassSuffix: String
 ) {
     companion object {
         fun fromAPTOptions(options: Map<String, String>): GenerationOptions {
@@ -14,14 +16,19 @@ data class GenerationOptions(
 
             val pkg = options["jsCallbackPackage"] ?: throw GenerationOptionException("Missing jsCallbackPackage")
 
-            val jsToJavaproxySubpackageName = options["jsToJavaProxySubpackageName"] ?: "jstojava"
-            val javaToJSproxySubpackageName = options["javaToJSProxySubpackageName"] ?: "javatojs"
+            val jsToJavaProxySubpackageName = options["jsToJavaProxySubpackageName"] ?: "jstojava"
+            val javaToJSProxySubpackageName = options["javaToJSProxySubpackageName"] ?: "javatojs"
+
+            val jsToJavaClassSuffix = options["jsToJavaClassSuffix"] ?: "ToJavaProxy"
+            val javaToJSClassSuffix = options["javaToJSClassSuffix"] ?: "ToJSProxy"
 
             return GenerationOptions(
                 File(p),
                 pkg,
-                jsToJavaproxySubpackageName,
-                javaToJSproxySubpackageName)
+                jsToJavaProxySubpackageName,
+                javaToJSProxySubpackageName,
+                jsToJavaClassSuffix,
+                javaToJSClassSuffix)
         }
     }
 }

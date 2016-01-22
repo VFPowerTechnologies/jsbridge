@@ -59,7 +59,7 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
                 generateCodeForMethodParams(context, generatedPackage, classSpec, methodSpec, classSpec.asTypeElement())
             }
 
-            val generatedClassName = "${className}Proxy"
+            val generatedClassName = "$className${context.options.javaToJSClassSuffix}"
             val generatedClassFQN = "$generatedPackage.$generatedClassName"
 
             val vc = VelocityContext()

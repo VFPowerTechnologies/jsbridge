@@ -35,11 +35,10 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
     private fun generateCodeFor(e: TypeElement) {
         val fqn = e.qualifiedName
 
-        //generated files go into <qualified-name>.<jsProxySubpackageName>.<name>JSProxy
         val (pkg, className) = splitPackageClass(fqn)
-        val generatedPkg = "$pkg.${context.options.jsToJavaProxySubpackageName}"
-        val generatedClassName = "${className}JSProxy"
-        val generatedFQN = "$generatedPkg.$generatedClassName"
+        val generatedPackage = "$pkg.${context.options.jsToJavaProxySubpackageName}"
+        val generatedClassName = "$className${context.options.jsToJavaClassSuffix}"
+        val generatedFQN = "$generatedPackage.$generatedClassName"
         context.logInfo("Generating $generatedFQN")
 
         //TODO classify methods as:
@@ -52,7 +51,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         //generate method arg classes
         for (methodSpec in classSpec.methods) {
             val newSpec = preprocessMethodSpec(classSpec, methodSpec)
-            generateCodeForMethodParams(context, generatedPkg, classSpec, newSpec, e)
+            generateCodeForMethodParams(context, generatedPackage, classSpec, newSpec, e)
 
             val argNames = methodSpec.params.map { it.name }
             val argsType = getMethodArgsClassName(classSpec, newSpec)
@@ -64,7 +63,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
         //generate js->java proxy
         val vc = VelocityContext()
-        vc.put("package", generatedPkg)
+        vc.put("package", generatedPackage)
         vc.put("className", generatedClassName)
         vc.put("originalFDQN", fqn)
         vc.put("originalClassName", className)
