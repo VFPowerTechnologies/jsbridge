@@ -1,4 +1,5 @@
 function JavaError(message, type, stacktrace) {
+    this.name = 'JavaError';
     this.message = message;
     this.type = type;
     this.stacktrace = stacktrace;
