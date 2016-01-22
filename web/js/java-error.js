@@ -5,5 +5,8 @@ function JavaError(message, type, stacktrace) {
 }
 JavaError.prototype = Object.create(Error.prototype);
 JavaError.prototype.constructor = JavaError;
+JavaError.prototype.toString = function () {
+    return 'JavaError(' + this.type + '): ' + this.message;
+};
 
 module.exports = JavaError;
