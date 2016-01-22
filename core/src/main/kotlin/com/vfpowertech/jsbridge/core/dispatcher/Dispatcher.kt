@@ -41,7 +41,7 @@ class Dispatcher(private val engine: WebEngineInterface) {
 
     fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean) {
         log.debug("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
-        //TODO need to make sure this is available for each platform
+        //this embeds the json as object directly, so we don't need to bother deserializing it on the js side
         engine.runJS("window.dispatcher.sendValue(\"$callbackId\", $isError, $json);")
     }
 

@@ -17,18 +17,7 @@ $p.name
             args.push($p.name);
         #end
 
-        #if($m.hasReturnValue)
-            function deserializeValue(jsonValue) {
-                var v = JSON.parse(jsonValue);
-                resolve(v);
-            }
-        #else
-            function deserializeValue() {
-                resolve();
-            }
-        #end
-
-        window.dispatcher.call("$className", "$m.name", JSON.stringify(args), deserializeValue, reject);
+        window.dispatcher.call("$className", "$m.name", JSON.stringify(args), resolve, reject);
     });
 }
 
