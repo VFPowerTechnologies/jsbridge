@@ -53,15 +53,13 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
 
             val fqn = classSpec.fqn
             val (pkg, className) = splitPackageClass(fqn)
+            val generatedPackage = "$pkg.${context.options.javaToJsProxySubpackageName}"
 
             for (methodSpec in classSpec.methods) {
-                val generatedPkg = "$pkg.javaproxy"
-                generateCodeForMethodParams(context, generatedPkg, classSpec, methodSpec, classSpec.asTypeElement())
+                generateCodeForMethodParams(context, generatedPackage, classSpec, methodSpec, classSpec.asTypeElement())
             }
 
             val generatedClassName = "${className}Proxy"
-            //TODO make option
-            val generatedPackage = "$pkg.javaproxy"
             val generatedClassFQN = "$generatedPackage.$generatedClassName"
 
             val vc = VelocityContext()

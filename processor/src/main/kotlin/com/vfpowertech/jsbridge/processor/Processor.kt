@@ -11,6 +11,7 @@ import javax.annotation.processing.SupportedOptions
 import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
+import javax.tools.Diagnostic
 
 @SupportedAnnotationTypes(
     "com.vfpowertech.jsbridge.processor.Generate",
@@ -31,14 +32,14 @@ class Processor : AbstractProcessor() {
                 GenerationOptions.fromAPTOptions(processingEnv.options)
             }
             catch (e: GenerationOptionException) {
-                context.logError(e.message!!)
+                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, e.message!!)
                 return true
             }
 
             //returns false if dirs already exist
-            if (!options.jsBuildDir.mkdirs()) {
-                if (!options.jsBuildDir.isDirectory || !options.jsBuildDir.exists()) {
-                    context.logError("Unable to create jsBuildDir at ${options.jsBuildDir}")
+            if (!options.jsOutputDir.mkdirs()) {
+                if (!options.jsOutputDir.isDirectory || !options.jsOutputDir.exists()) {
+                    context.logError("Unable to create jsBuildDir at ${options.jsOutputDir}")
                     return true
                 }
             }

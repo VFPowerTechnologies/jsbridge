@@ -37,7 +37,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
         //generated files go into <qualified-name>.<jsProxySubpackageName>.<name>JSProxy
         val (pkg, className) = splitPackageClass(fqn)
-        val generatedPkg = "$pkg.${context.options.jsProxySubpackageName}"
+        val generatedPkg = "$pkg.${context.options.jsToJavaProxySubpackageName}"
         val generatedClassName = "${className}JSProxy"
         val generatedFQN = "$generatedPkg.$generatedClassName"
         context.logInfo("Generating $generatedFQN")
@@ -79,7 +79,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         val className = classSpec.name
         val jsModuleName = uncamel(className)
         //TODO support packaging based on truncated java pkg maybe?
-        val path = File(context.options.jsBuildDir, jsModuleName + ".js")
+        val path = File(context.options.jsOutputDir, jsModuleName + ".js")
 
         val vc = VelocityContext()
         vc.put("className", className)

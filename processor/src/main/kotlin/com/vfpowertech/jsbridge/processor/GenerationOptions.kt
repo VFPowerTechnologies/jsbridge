@@ -3,22 +3,25 @@ package com.vfpowertech.jsbridge.processor
 import java.io.File
 
 data class GenerationOptions(
-    val jsBuildDir: File,
+    val jsOutputDir: File,
     val jsCallbackPackage: String,
-    val jsProxySubpackageName: String
+    val jsToJavaProxySubpackageName: String,
+    val javaToJsProxySubpackageName: String
 ) {
     companion object {
         fun fromAPTOptions(options: Map<String, String>): GenerationOptions {
-            val p = options["jsBuildDir"] ?: throw GenerationOptionException("Missing jsBuildDir option")
+            val p = options["jsOutputDir"] ?: throw GenerationOptionException("Missing jsOutputDir option")
 
             val pkg = options["jsCallbackPackage"] ?: throw GenerationOptionException("Missing jsCallbackPackage")
 
-            val proxySubpackage = options["jsProxySubpackageName"] ?: "jsproxy"
+            val jsToJavaproxySubpackageName = options["jsToJavaProxySubpackageName"] ?: "jstojava"
+            val javaToJSproxySubpackageName = options["javaToJSProxySubpackageName"] ?: "javatojs"
 
             return GenerationOptions(
                 File(p),
                 pkg,
-                proxySubpackage)
+                jsToJavaproxySubpackageName,
+                javaToJSproxySubpackageName)
         }
     }
 }
