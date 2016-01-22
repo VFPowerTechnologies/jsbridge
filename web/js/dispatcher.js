@@ -21,7 +21,7 @@ Dispatcher.prototype.call = function (service, methodName, methodArgs, resolve, 
 
     //TODO this needs to be different for each platform
     //so if ios is detected (window.webkit.dispatchers isn't null), do postMessage instead of call()
-    nativeDispatcher.call(service, methodName, methodArgs, callbackId);
+    window.nativeDispatcher.call(service, methodName, methodArgs, callbackId);
 };
 
 Dispatcher.prototype.callFromNative = function (targetStr, methodName, methodArgs, callbackId) {
@@ -35,14 +35,14 @@ Dispatcher.prototype.callFromNative = function (targetStr, methodName, methodArg
     var resolve = function (v) {
         if (v === undefined)
             v = null;
-        nativeDispatcher.callbackFromJS(callbackId, false, JSON.stringify(v));
+        window.nativeDispatcher.callbackFromJS(callbackId, false, JSON.stringify(v));
     };
     args.push(resolve);
 
     var reject = function (v) {
         if (v === undefined)
             v = null;
-        nativeDispatcher.callbackFromJS(callbackId, true, JSON.stringify(v));
+        window.nativeDispatcher.callbackFromJS(callbackId, true, JSON.stringify(v));
     };
     args.push(reject);
 
@@ -100,3 +100,7 @@ if (window.nativeDispatcher === undefined) {
     else
         console.log('Unsupported platform');
 }
+
+module.exports = {
+    Dispatcher: Dispatcher
+};

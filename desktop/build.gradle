@@ -13,7 +13,7 @@ apply plugin: 'application'
 
 mainClassName = 'com.vfpowertech.jsbridge.desktop.App'
 
-sourceSets.main.resources.srcDirs += "$rootProject.projectDir/web"
+sourceSets.main.resources.srcDirs += "$rootProject.projectDir/web/assets"
 
 dependencies {
     compile project(':core')

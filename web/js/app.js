@@ -1,5 +1,9 @@
-dispatcher = new Dispatcher();
-sampleService = new SampleService()
+var Dispatcher = require('./dispatcher').Dispatcher;
+var SampleService = require('./jvm-service/sample-service.js').SampleService;
+
+window.dispatcher = new Dispatcher();
+window.sampleService = new SampleService();
+window.jsService = require('./service/js-service').getService();
 
 sampleService.getValue().then(function (value) {
     console.log("Got value: " + value);

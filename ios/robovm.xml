@@ -9,7 +9,7 @@
             <directory>resources</directory>
         </resource>
         <resource>
-            <directory>../web</directory>
+            <directory>../web/assets</directory>
         </resource>
     </resources>
 </config>
