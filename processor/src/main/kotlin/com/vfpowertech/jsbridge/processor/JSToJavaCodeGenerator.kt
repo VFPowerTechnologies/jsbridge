@@ -1,6 +1,9 @@
 package com.vfpowertech.jsbridge.processor
 
 import org.apache.velocity.VelocityContext
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
 import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
@@ -43,7 +46,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         //a) async (retval is Promise)
         //b) sync (retval is not Promise)
         //also need to handle FunctionN params since they need to be wrapped
-        val classSpec = validateClassSpec(generateClassSpecFor(e))
+        val classSpec = validateClassSpec(generateClassSpecFor(context.processingEnv, e))
 
         val methodGenerationInfo = ArrayList<MethodGenerationInfo>()
         //generate method arg classes
@@ -68,6 +71,25 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         vc.put("methods", methodGenerationInfo)
 
         context.writeTemplate(context.templates.jsToJavaProxy, generatedFQN, e, vc)
+
+        generateJSStub(classSpec)
+    }
+
+    private fun generateJSStub(classSpec: ClassSpec) {
+        val className = classSpec.name
+        val jsModuleName = uncamel(className)
+        //TODO support packaging based on truncated java pkg maybe?
+        val path = File(context.options.jsBuildDir, jsModuleName + ".js")
+
+        val vc = VelocityContext()
+        vc.put("className", className)
+        vc.put("methods", classSpec.methods)
+
+        context.logInfo("Generating $path")
+
+        BufferedWriter(FileWriter(path)).use {
+            context.templates.jsServiceStub.merge(vc, it)
+        }
     }
 
     private fun validateClassSpec(classSpec: ClassSpec): ClassSpec {

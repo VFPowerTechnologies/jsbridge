@@ -7,7 +7,8 @@ data class MethodSpec(
     val name: String,
     val element: ExecutableElement,
     val params: List<ParamSpec>,
-    val returnType: TypeMirror
+    val returnType: TypeMirror,
+    val hasReturnValue: Boolean
 ) {
     val returnTypeFQN: String
         get() = returnType.toString()

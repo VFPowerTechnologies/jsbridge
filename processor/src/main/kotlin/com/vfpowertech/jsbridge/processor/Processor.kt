@@ -35,6 +35,14 @@ class Processor : AbstractProcessor() {
                 return true
             }
 
+            //returns false if dirs already exist
+            if (!options.jsBuildDir.mkdirs()) {
+                if (!options.jsBuildDir.isDirectory || !options.jsBuildDir.exists()) {
+                    context.logError("Unable to create jsBuildDir at ${options.jsBuildDir}")
+                    return true
+                }
+            }
+
             val props = Properties()
             props.setProperty("runtime.references.strict", "true")
             val velocityEngine = VelocityEngine(props)
@@ -47,7 +55,8 @@ class Processor : AbstractProcessor() {
                 velocityEngine.getTemplate("templates/jsproxy.java.vm"),
                 velocityEngine.getTemplate("templates/args.java.vm"),
                 velocityEngine.getTemplate("templates/jscallback.java.vm"),
-                velocityEngine.getTemplate("templates/JavaToJSProxy.java.vm"))
+                velocityEngine.getTemplate("templates/JavaToJSProxy.java.vm"),
+                velocityEngine.getTemplate("templates/js-service-stub.js.vm"))
 
             context = GenerationContext(processingEnv, options, templates)
         }

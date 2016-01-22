@@ -9,5 +9,6 @@ class Templates(
     val jsToJavaProxy: Template,
     val args: Template,
     val jsCallback: Template,
-    val javaToJSProxy: Template
+    val javaToJSProxy: Template,
+    val jsServiceStub: Template
 )

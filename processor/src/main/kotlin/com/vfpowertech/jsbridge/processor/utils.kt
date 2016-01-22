@@ -12,7 +12,12 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
 
-fun generateClassSpecFor(cls: TypeElement): ClassSpec {
+fun uncamel(s: CharSequence): String =
+    kotlin.text.Regex("(?<!^)([A-Z])").replace(s, { m ->
+        "-" + m.groups[1]!!.value.toLowerCase()
+    }).toLowerCase()
+
+fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement): ClassSpec {
     val methods = ArrayList<MethodSpec>()
 
     for (ee in cls.enclosedElements) {
@@ -30,7 +35,8 @@ fun generateClassSpecFor(cls: TypeElement): ClassSpec {
             params.add(ParamSpec(paramName, p, type))
         }
 
-        methods.add(MethodSpec(methodName, ee, params, returnType))
+        val hasReturnValue = !isVoidType(processingEnv, returnType)
+        methods.add(MethodSpec(methodName, ee, params, returnType, hasReturnValue))
     }
 
     return ClassSpec(cls.simpleName.toString(), cls, cls.asType() as DeclaredType, methods)

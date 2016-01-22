@@ -1,0 +1,43 @@
+// AUTO-GENERATED FILE; NO NOT EDIT
+function ${className}() {
+    if (!(this instanceof ${className}))
+        return new ${className};
+}
+
+#foreach($m in $methods)
+${className}.prototype.${m.name}(
+#foreach($p in $m.params)
+$p.name
+#if($foreach.hasNext),#end
+#end
+) {
+    return new Promise(function (resolve, reject) {
+        var args = [];
+        #foreach($p in $m.params)
+            args.push($p.name);
+        #end
+
+        #if($m.hasReturnValue)
+            function deserializeValue(jsonValue) {
+                var v = JSON.parse(jsonValue);
+                resolve(v);
+            }
+        #else
+            function deserializeValue() {
+                resolve();
+            }
+        #end
+
+        //TODO
+        function deserializeException(e) {
+            reject(e);
+        }
+
+        window.dispatcher.call("$className", "$m.name", JSON.stringify(args), deserializeValue, deserializeException);
+    });
+}
+
+#end
+module.exports = {
+    $className: $className
+};

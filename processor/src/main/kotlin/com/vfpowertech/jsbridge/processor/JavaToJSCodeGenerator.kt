@@ -39,7 +39,7 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
         val classes = ArrayList<ClassSpec>()
         val referencedTypes = HashMap<String, TypeMirror>()
         for (e in elements) {
-            val classInfo = validateClassSpec(generateClassSpecFor(e as TypeElement))
+            val classInfo = validateClassSpec(generateClassSpecFor(context.processingEnv, e as TypeElement))
             classes.add(classInfo)
             referencedTypes.putAll(classInfo.getReferencedTypes())
         }
