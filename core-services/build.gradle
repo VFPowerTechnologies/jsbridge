@@ -13,7 +13,7 @@ apply plugin: 'kotlin'
 kapt {
     generateStubs = true
     arguments {
-        arg("jsBuildDir", "$buildDir/generated/js")
+        arg("jsBuildDir", "$rootProject.projectDir/web/js/jvm-service")
         arg("jsCallbackPackage", "com.vfpowertech.jsbridge.core.services.jscallback")
     }
 }
