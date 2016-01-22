@@ -76,7 +76,7 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
             vc.put("serviceName", serviceName)
 
             context.logInfo("Generating $generatedClassFQN")
-            context.writeTemplate(context.templates.javaToJSProxyTemplate, generatedClassFQN, classSpec.element, vc)
+            context.writeTemplate(context.templates.javaToJSProxy, generatedClassFQN, classSpec.element, vc)
         }
     }
 

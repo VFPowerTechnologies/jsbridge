@@ -146,7 +146,7 @@ fun generateCodeForMethodParams(context: GenerationContext, pkg: String, classSp
 
     context.logInfo("Generating $fqn")
 
-    context.writeTemplate(context.templates.argsTemplate, fqn, e, vc)
+    context.writeTemplate(context.templates.args, fqn, e, vc)
 }
 
 /**

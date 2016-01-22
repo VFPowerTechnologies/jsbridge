@@ -67,7 +67,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         vc.put("originalClassName", className)
         vc.put("methods", methodGenerationInfo)
 
-        context.writeTemplate(context.templates.jsProxyTemplate, generatedFQN, e, vc)
+        context.writeTemplate(context.templates.jsToJavaProxy, generatedFQN, e, vc)
     }
 
     private fun validateClassSpec(classSpec: ClassSpec): ClassSpec {
@@ -142,7 +142,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
             vc.put("retType", retType)
             vc.put("argType", funcArgs.first())
 
-            context.writeTemplate(context.templates.jsCallbackTemplate, fqn, null, vc)
+            context.writeTemplate(context.templates.jsCallback, fqn, null, vc)
         }
 
         return methodSpec.copy(params = params)
