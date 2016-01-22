@@ -63,7 +63,7 @@ public class $className implements $serviceInterface {
             return null;
         };
 
-        dispatcher.callJS("window.jsService", "$m.name", jsonArgs, resolve, reject);
+        dispatcher.callJS("window.$serviceName", "$m.name", jsonArgs, resolve, reject);
 
         return deferred.getPromise();
     }

@@ -45,6 +45,12 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
         }
 
         for (classSpec in classes) {
+            val serviceName = classSpec.element.getAnnotation(JSServiceName::class.java)?.value
+            if (serviceName == null) {
+                context.logError("${classSpec.fqn} lacks a JSServiceName annotation")
+                return
+            }
+
             val fqn = classSpec.fqn
             val (pkg, className) = splitPackageClass(fqn)
 
@@ -67,6 +73,7 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
             })
             vc.put("methods", classSpec.methods)
             vc.put("serviceInterface", classSpec.type)
+            vc.put("serviceName", serviceName)
 
             context.logInfo("Generating $generatedClassFQN")
             context.writeTemplate(context.templates.javaToJSProxyTemplate, generatedClassFQN, classSpec.element, vc)
