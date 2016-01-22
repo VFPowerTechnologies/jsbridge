@@ -53,9 +53,9 @@ class Processor : AbstractProcessor() {
 
             val templates = Templates(
                 velocityEngine,
-                velocityEngine.getTemplate("templates/jsproxy.java.vm"),
-                velocityEngine.getTemplate("templates/args.java.vm"),
-                velocityEngine.getTemplate("templates/jscallback.java.vm"),
+                velocityEngine.getTemplate("templates/JSToJavaProxy.java.vm"),
+                velocityEngine.getTemplate("templates/MethodArgs.java.vm"),
+                velocityEngine.getTemplate("templates/JSCallback.java.vm"),
                 velocityEngine.getTemplate("templates/JavaToJSProxy.java.vm"),
                 velocityEngine.getTemplate("templates/js-service-stub.js.vm"))
 
