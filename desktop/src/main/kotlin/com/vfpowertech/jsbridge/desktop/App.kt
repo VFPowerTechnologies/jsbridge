@@ -59,6 +59,12 @@ class App : Application() {
             } fail {
                 log.info("noArgsFn failed: {}", it)
             }
+
+            jsService.throwError() success {
+                log.info("throwError succeeded: {}", it)
+            } fail {
+                log.info("throwError failed: {}", it.toString())
+            }
         }
 
         engine.load(javaClass.getResource("/index.html").toExternalForm())

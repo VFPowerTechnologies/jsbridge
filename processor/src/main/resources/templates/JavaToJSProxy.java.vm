@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher;
+import com.vfpowertech.jsbridge.core.dispatcher.JSException;
 import kotlin.jvm.functions.Function1;
 import kotlin.Unit;
 import nl.komponents.kovenant.Kovenant;
@@ -68,8 +69,14 @@ public class $className implements $serviceInterface {
         };
 
         Function1<String, Unit> reject = (jsonExc) -> {
-            //TODO
-            deferred.reject(new RuntimeException(jsonExc));
+            JSException exception;
+            try {
+                exception = objectMapper.readValue(jsonExc, JSException.class);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            deferred.reject(exception);
             return null;
         };
 

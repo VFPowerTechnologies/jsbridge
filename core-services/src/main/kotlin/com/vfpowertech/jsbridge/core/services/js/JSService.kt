@@ -10,5 +10,7 @@ import nl.komponents.kovenant.Promise
 interface JSService {
     fun syncFn(v: V, n: Int): Promise<R, Exception>
     fun noArgsFn(): Promise<Unit, Exception>
+    fun throwError(): Promise<Unit, Exception>
+    fun missingJSMethod(): Promise<Unit, Exception>
     //fun asyncFn(v: Int): Promise<Int, Exception>
 }

@@ -46,9 +46,15 @@ Dispatcher.prototype.callFromNative = function (targetStr, methodName, methodArg
     args.push(resolve);
 
     var reject = function (v) {
-        if (v === undefined)
-            v = null;
-        window.nativeDispatcher.callbackFromJS(callbackId, true, JSON.stringify(v));
+        if (!(v instanceof Error))
+            throw new Error("An Error instance must be provided to reject");
+
+        var repr = {
+            message: v.message,
+            type: v.name
+        };
+
+        window.nativeDispatcher.callbackFromJS(callbackId, true, JSON.stringify(repr));
     };
     args.push(reject);
 
