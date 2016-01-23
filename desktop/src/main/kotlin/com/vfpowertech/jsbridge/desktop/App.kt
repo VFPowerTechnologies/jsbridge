@@ -60,10 +60,22 @@ class App : Application() {
                 log.info("noArgsFn failed: {}", it)
             }
 
-            jsService.throwError() success {
-                log.info("throwError succeeded: {}", it)
+            jsService.rejects() success {
+                log.info("rejects succeeded: {}", it)
             } fail {
-                log.info("throwError failed: {}", it.toString())
+                log.info("rejects failed: {}", it.toString())
+            }
+
+            jsService.throwsError() success {
+                log.info("throwsError succeeded: {}", it)
+            } fail {
+                log.info("throwsError failed: {}", it.toString())
+            }
+
+            jsService.missingJSMethod() success {
+                log.info("missingMethod succeeded: {}", it)
+            } fail {
+                log.info("missingMethod failed: {}", it.toString())
             }
         }
 

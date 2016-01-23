@@ -1,7 +1,6 @@
-//TODO
-//We need to map each java type we send back to a js class from json
-
 var JavaError = require('./java-error');
+var MissingMethodError = require('./missing-method-error');
+var MissingServiceError = require('./missing-service-error');
 
 function deserializeJavaException(repr) {
     return new JavaError(
@@ -25,16 +24,12 @@ Dispatcher.prototype.call = function (service, methodName, methodArgs, resolve, 
 
     console.log('js->native: ' + service + '.' + methodName + '(' + methodArgs + ')');
 
-    //TODO this needs to be different for each platform
-    //so if ios is detected (window.webkit.dispatchers isn't null), do postMessage instead of call()
     window.nativeDispatcher.call(service, methodName, methodArgs, callbackId);
 };
 
-Dispatcher.prototype.callFromNative = function (targetStr, methodName, methodArgs, callbackId) {
+Dispatcher.prototype.callFromNative = function (serviceName, methodName, methodArgs, callbackId) {
     var args = methodArgs;
-    console.log(targetStr + "." + methodName + "(" + args + ") (" + callbackId + ")");
-    //TODO if this doesn't exist, reject with an error
-    var target = eval(targetStr);
+    console.log(serviceName + "." + methodName + "(" + args + ") (" + callbackId + ")");
 
     //TODO maybe have variants for sync and async fns
     //for sync, just run the fun and send data back
@@ -58,12 +53,24 @@ Dispatcher.prototype.callFromNative = function (targetStr, methodName, methodArg
     };
     args.push(reject);
 
-    //TODO maybe replace eval with a fn, which might be faster
-    //TODO if this doesn't exist, reject with an error
-    var fn = target[methodName];
+    var target = eval(serviceName);
+    if (target === undefined) {
+        reject(new MissingServiceError(serviceName));
+        return;
+    }
 
-    //TODO if this throws, reject
-    fn.apply(target, args);
+    var fn = target[methodName];
+    if (fn === undefined) {
+        reject(new MissingMethodError(methodName));
+        return;
+    }
+
+    try {
+        fn.apply(target, args);
+    }
+    catch (e) {
+        reject(e);
+    }
 }
 
 Dispatcher.prototype.sendValue = function (callbackId, isError, value) {

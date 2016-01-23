@@ -45,20 +45,16 @@ class Dispatcher(private val engine: WebEngineInterface) {
         engine.runJS("window.dispatcher.sendValue(\"$callbackId\", $isError, $json);")
     }
 
-    fun sendExcBackToJS(callbackId: String, json: String) {
-
-    }
-
     //target: something like window.service
     //methodArgs is json
     //need to register a callback with th
-    fun callJS(target: String, methodName: String, methodArgs: String, resolve: (String) -> Unit, reject: (String) -> Unit) {
+    fun callJS(serviceName: String, methodName: String, methodArgs: String, resolve: (String) -> Unit, reject: (String) -> Unit) {
         val callbackId = getNextCallbackId()
-        log.debug("native->js: {}.{}({}) -> {}", target, methodName, methodArgs, callbackId)
+        log.debug("native->js: {}.{}({}) -> {}", serviceName, methodName, methodArgs, callbackId)
         //we add this first, as executeScript is sync
         pendingPromises[callbackId] = PromiseCallbacks(resolve, reject)
         //TODO catch exceptions and fail the promise?
-        engine.runJS("window.dispatcher.callFromNative(\"$target\", \"$methodName\", $methodArgs, \"$callbackId\");")
+        engine.runJS("window.dispatcher.callFromNative(\"$serviceName\", \"$methodName\", $methodArgs, \"$callbackId\");")
     }
 
     fun callbackFromJS(callbackId: String, isError: Boolean, jsonRetVal: String) {

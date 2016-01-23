@@ -7,8 +7,11 @@ var jsService = {
         console.log("noArgsFn()");
         resolve();
     },
-    throwError: function (resolve, reject) {
-        reject(new Error('js error'));
+    rejects: function (resolve, reject) {
+        reject(new Error('reject js error'));
+    },
+    throwsError: function (resolve, reject) {
+        throw new Error('thrown js error');
     },
     asyncFn: function (resolve, reject) {
     }
