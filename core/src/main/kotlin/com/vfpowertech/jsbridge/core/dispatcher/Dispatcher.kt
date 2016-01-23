@@ -42,7 +42,7 @@ class Dispatcher(private val engine: WebEngineInterface) {
     fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean) {
         log.debug("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
         //this embeds the json as object directly, so we don't need to bother deserializing it on the js side
-        engine.runJS("window.dispatcher.sendValue(\"$callbackId\", $isError, $json);")
+        engine.runJS("window.dispatcher.sendValueToCallback(\"$callbackId\", $isError, $json);")
     }
 
     //target: something like window.service
@@ -54,7 +54,7 @@ class Dispatcher(private val engine: WebEngineInterface) {
         //we add this first, as executeScript is sync
         pendingPromises[callbackId] = PromiseCallbacks(resolve, reject)
         //TODO catch exceptions and fail the promise?
-        engine.runJS("window.dispatcher.callFromNative(\"$serviceName\", \"$methodName\", $methodArgs, \"$callbackId\");")
+        engine.runJS("window.dispatcher.handleCallFromNative(\"$serviceName\", \"$methodName\", $methodArgs, \"$callbackId\");")
     }
 
     fun callbackFromJS(callbackId: String, isError: Boolean, jsonRetVal: String) {

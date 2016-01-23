@@ -27,7 +27,7 @@ Dispatcher.prototype.call = function (service, methodName, methodArgs, resolve, 
     window.nativeDispatcher.call(service, methodName, methodArgs, callbackId);
 };
 
-Dispatcher.prototype.callFromNative = function (serviceName, methodName, methodArgs, callbackId) {
+Dispatcher.prototype.handleCallFromNative = function (serviceName, methodName, methodArgs, callbackId) {
     var args = methodArgs;
     console.log(serviceName + "." + methodName + "(" + args + ") (" + callbackId + ")");
 
@@ -73,7 +73,7 @@ Dispatcher.prototype.callFromNative = function (serviceName, methodName, methodA
     }
 }
 
-Dispatcher.prototype.sendValue = function (callbackId, isError, value) {
+Dispatcher.prototype.sendValueToCallback = function (callbackId, isError, value) {
     console.log("Received " + value + " for callbackId=" + callbackId)
 
     //TODO if a listener, reject can be null, so maybe check and emit a warning?
