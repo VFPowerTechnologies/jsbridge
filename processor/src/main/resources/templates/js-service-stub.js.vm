@@ -11,6 +11,9 @@ $p.name
 #if($foreach.hasNext),#end
 #end
 ) {
+    if (arguments.length != $m.params.size())
+        throw new Error('Invalid number of arguments: expected $m.params.size(), got ' + arguments.length);
+
     return new Promise(function (resolve, reject) {
         var args = [];
         #foreach($p in $m.params)

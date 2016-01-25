@@ -36,10 +36,12 @@ describe('TestService', function () {
             return assert.becomes(testService.syncAdd(2, 3), 5);
         });
 
-        it.skip('should fail when given invalid values', function () {
+        it('should fail when given invalid values', function () {
+            return assert.isRejected(testService.syncAdd('a', 'b'), JavaError);
         });
 
-        it.skip('should fail when missing arguments', function () {
+        it('should fail when missing arguments', function () {
+            assert.throws(function () { testService.syncAdd(1); }, /Invalid number of arguments/);
         });
     });
 
