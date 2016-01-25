@@ -18,9 +18,10 @@ fun uncamel(s: CharSequence): String =
         "-" + m.groups[1]!!.value.toLowerCase()
     }).toLowerCase()
 
-fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement): ClassSpec {
-    val methods = ArrayList<MethodSpec>()
-
+/**
+ * Returns true if the given type matches Promise<?, Exception>
+ */
+fun isValidPromiseType(processingEnv: ProcessingEnvironment, type: TypeMirror): Boolean {
     val typeUtils = processingEnv.typeUtils
     val elementUtils = processingEnv.elementUtils
 
@@ -29,6 +30,12 @@ fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement)
         typeUtils.getWildcardType(null, null),
         elementUtils.getTypeElement("java.lang.Exception").asType()
     )
+
+    return typeUtils.isAssignable(type, promiseType)
+}
+
+fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement): ClassSpec {
+    val methods = ArrayList<MethodSpec>()
 
     fun logDebug(msg: String) {
         processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, msg)
@@ -53,7 +60,7 @@ fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement)
             params.add(ParamSpec(paramName, p, type, isFuncType))
         }
 
-        val returnsPromise = typeUtils.isAssignable(returnType, promiseType)
+        val returnsPromise = isValidPromiseType(processingEnv, returnType)
         val hasReturnValue = !isVoidType(processingEnv, if (!returnsPromise) {
             returnType
         }
@@ -76,7 +83,10 @@ fun getPromiseReturnType(type: DeclaredType): TypeMirror =
 fun getMethodArgsClassName(classSpec: ClassSpec, methodSpec: MethodSpec): String =
     "${classSpec.name}${methodSpec.name.capitalize()}Args"
 
-//supports both java's void+Void and kotlin's Unit
+/**
+ * Returns true if the given type corresponds to a void type.
+ * Supports java's void, java.lang.Void and kotlin.Unit.
+ */
 fun isVoidType(processingEnv: ProcessingEnvironment, mirror: TypeMirror): Boolean {
     val typeUtils = processingEnv.typeUtils
     val elementUtils = processingEnv.elementUtils
