@@ -7,7 +7,6 @@ import nl.komponents.kovenant.deferred
 import java.util.*
 import kotlin.concurrent.timerTask
 
-//TODO async method
 @Generate
 class SampleService {
     var value: Int = 0
