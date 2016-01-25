@@ -1,8 +1,5 @@
 var assert = chai.assert;
 
-//load dispatcher & co
-require('./app.js');
-
 var JavaError = require('./dispatcher').JavaError;
 
 describe('TestService', function () {
