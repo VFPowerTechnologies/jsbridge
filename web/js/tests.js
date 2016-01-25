@@ -57,6 +57,27 @@ describe('TestService', function () {
         });
     });
 
+    describe('syncReturnList', function () {
+        it('should return [1, 2, 3] when called', function () {
+            return assert.becomes(testService.syncReturnList(), [1, 2, 3]);
+        });
+    });
+
+    describe('syncListArg', function () {
+        it('should sum the list when called', function () {
+            return assert.becomes(testService.syncListArg([1, 2]), 3);
+        });
+        it('should error when given invalid types', function () {
+            return assert.isRejected(testService.syncListArg(['a', 'b']), JavaError);
+        });
+    });
+
+    describe('syncReturnMap', function () {
+        it('should return a map when called', function () {
+            return assert.becomes(testService.syncReturnMap(), {'a': 1, 'b': 2});
+        });
+    });
+
     describe('getValue', function () {
         it('should return 0', function () {
             return assert.becomes(testService.getValue(), 0);

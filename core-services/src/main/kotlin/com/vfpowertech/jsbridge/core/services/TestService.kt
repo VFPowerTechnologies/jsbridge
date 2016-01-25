@@ -30,6 +30,14 @@ class TestService {
     fun syncVoid() {
     }
 
+    fun syncReturnList(): List<Int> = arrayListOf(1, 2, 3)
+
+    fun syncListArg(list: List<Int>): Int =
+        list.sum()
+
+    fun syncReturnMap(): Map<String, Int> =
+        mapOf("a" to 1, "b" to 2)
+
     /* Async functions */
 
     fun asyncAdd(i: Int, j: Int): Promise<Int, Exception> {
