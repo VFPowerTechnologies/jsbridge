@@ -12,7 +12,7 @@ import android.webkit.WebViewClient
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
 import com.vfpowertech.jsbridge.core.services.js.JSServiceImpl
 import com.vfpowertech.jsbridge.core.services.js.V
-import com.vfpowertech.jsbridge.core.services.SampleService
+import com.vfpowertech.jsbridge.core.services.TestService
 import com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy
 import org.slf4j.LoggerFactory
 
@@ -58,7 +58,7 @@ class MainActivity : Activity() {
         })
 
         val dispatcher = Dispatcher(AndroidWebEngineInterface(webview))
-        val sampleService = com.vfpowertech.jsbridge.core.services.SampleService()
+        val sampleService = com.vfpowertech.jsbridge.core.services.TestService()
         dispatcher.registerService("SampleService", com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy(sampleService, dispatcher))
 
         findViewById(R.id.notifyBtn).setOnClickListener {

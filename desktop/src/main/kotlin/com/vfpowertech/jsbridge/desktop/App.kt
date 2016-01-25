@@ -32,15 +32,15 @@ class App : Application() {
 
         val dispatcher = Dispatcher(JFXWebEngineInterface(engine))
 
-        val sampleService = com.vfpowertech.jsbridge.core.services.SampleService()
-        dispatcher.registerService("SampleService", com.vfpowertech.jsbridge.core.services.jstojava.SampleServiceToJavaProxy(sampleService, dispatcher))
+        val testService = com.vfpowertech.jsbridge.core.services.TestService()
+        dispatcher.registerService("TestService", com.vfpowertech.jsbridge.core.services.jstojava.TestServiceToJavaProxy(testService, dispatcher))
 
         val btnBox = HBox()
         vb.children.add(btnBox)
 
         val notifyBtn = Button("Notify")
         btnBox.children.add(notifyBtn)
-        notifyBtn.setOnAction { sampleService.callListeners(5) }
+        notifyBtn.setOnAction { testService.callListeners(5) }
 
         val jsService: JSService = com.vfpowertech.jsbridge.core.services.js.javatojs.JSServiceToJSProxy(dispatcher)
         val callBtn = Button("Call JS")

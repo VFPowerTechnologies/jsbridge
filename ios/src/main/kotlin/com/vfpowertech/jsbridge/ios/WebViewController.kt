@@ -2,7 +2,7 @@ package com.vfpowertech.jsbridge.ios
 
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
 import com.vfpowertech.jsbridge.core.services.js.JSServiceImpl
-import com.vfpowertech.jsbridge.core.services.SampleService
+import com.vfpowertech.jsbridge.core.services.TestService
 import com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy
 import org.robovm.apple.foundation.NSBundle
 import org.robovm.apple.foundation.NSURL
@@ -32,7 +32,7 @@ class WebViewController : UIViewController() {
 
         val dispatcher = Dispatcher(IOSWebEngineInterface(webView))
 
-        val sampleService = com.vfpowertech.jsbridge.core.services.SampleService()
+        val sampleService = com.vfpowertech.jsbridge.core.services.TestService()
         dispatcher.registerService("SampleService", com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy(sampleService, dispatcher))
 
         val jsService = JSServiceImpl(dispatcher)

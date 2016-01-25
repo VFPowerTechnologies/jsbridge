@@ -8,7 +8,7 @@ import java.util.*
 import kotlin.concurrent.timerTask
 
 @Generate
-class SampleService {
+class TestService {
     var value: Int = 0
     private val listeners = ArrayList<(Int) -> Unit>()
     private val timer = Timer(true)
