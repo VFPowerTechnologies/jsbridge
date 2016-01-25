@@ -11,8 +11,8 @@
       ]
   },
   "scripts": {
-    "build:js": "browserify js/app.js -o assets/js/app.js",
-    "watch:js": "watchify js/app.js -o assets/js/app.js",
+    "build:js": "browserify js/tests.js -o assets/js/tests.js",
+    "watch:js": "watchify js/tests.js -o assets/js/tests.js",
     "build:watch": "npm run watch:js",
     "build": "npm run build:js"
   }

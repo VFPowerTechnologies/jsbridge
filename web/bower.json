@@ -1,3 +1,8 @@
 {
-  "name": "jsbridge"
+  "name": "jsbridge",
+  "dependencies": {
+    "mocha": "~2.3.4",
+    "chai": "~3.4.2",
+    "chai-as-promised": "~5.2.0"
+  }
 }

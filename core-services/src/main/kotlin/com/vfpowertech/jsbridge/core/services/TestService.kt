@@ -33,26 +33,22 @@ class TestService {
     /* Async functions */
 
     fun asyncAdd(i: Int, j: Int): Promise<Int, Exception> {
-        println("Scheduling timer")
-
         val d = deferred<Int, Exception>()
 
         val task = timerTask {
-            println("Timer fired")
             d.resolve(i+j)
         }
 
-        timer.schedule(task, 500)
+        timer.schedule(task, 100)
 
         return d.promise
     }
 
     fun asyncThrow(): Promise<Unit, Exception> {
-        return Promise.ofFail(RuntimeException("asyncThrow exception"))
+        return Promise.ofFail(RuntimeException("Java exception occured"))
     }
 
-    fun asyncVoid(i: Int): Promise<Unit, Exception> {
-        println("void async")
+    fun asyncVoid(): Promise<Unit, Exception> {
         return Promise.ofSuccess(Unit)
     }
 
@@ -75,7 +71,11 @@ class TestService {
 
     /* Utils */
 
-    @Exclude
+    fun resetState() {
+        value = 0
+        listeners.clear()
+    }
+
     fun callListeners(v: Int) {
         listeners.forEach { it(v) }
     }
