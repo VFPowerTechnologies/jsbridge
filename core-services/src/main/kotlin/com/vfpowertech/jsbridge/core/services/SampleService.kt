@@ -12,6 +12,7 @@ import kotlin.concurrent.timerTask
 class SampleService {
     var value: Int = 0
     private val listeners = ArrayList<(Int) -> Unit>()
+    private val timer = Timer(true)
 
     fun addListener(listener: (Int) -> Unit) {
         listeners.add(listener)
@@ -26,7 +27,6 @@ class SampleService {
 
         val d = deferred<Int, Exception>()
 
-        val timer = Timer()
         val task = timerTask {
             println("Timer fired")
             d.resolve(i+j)
