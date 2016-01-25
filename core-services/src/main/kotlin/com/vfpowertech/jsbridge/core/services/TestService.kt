@@ -13,15 +13,26 @@ class TestService {
     private val listeners = ArrayList<(Int) -> Unit>()
     private val timer = Timer(true)
 
+    /* Listener functions */
     fun addListener(listener: (Int) -> Unit) {
         listeners.add(listener)
     }
 
-    fun throwException() {
+    /* Sync functions */
+    fun syncAdd(i: Int, j: Int): Int {
+        return i + j
+    }
+
+    fun syncThrow(): Int {
         throw RuntimeException("Java exception occured")
     }
 
-    fun asyncMethod(i: Int, j: Int): Promise<Int, Exception> {
+    fun syncVoid() {
+    }
+
+    /* Async functions */
+
+    fun asyncAdd(i: Int, j: Int): Promise<Int, Exception> {
         println("Scheduling timer")
 
         val d = deferred<Int, Exception>()
@@ -40,10 +51,12 @@ class TestService {
         return Promise.ofFail(RuntimeException("asyncThrow exception"))
     }
 
-    fun asyncVoidMethod(i: Int): Promise<Unit, Exception> {
+    fun asyncVoid(i: Int): Promise<Unit, Exception> {
         println("void async")
         return Promise.ofSuccess(Unit)
     }
+
+    /* Invalid signatures */
 
     @Exclude
     fun badArgCount(listener: (Int, String) -> Unit) {
@@ -54,6 +67,13 @@ class TestService {
     fun badRetType(listener: (Int) -> Int) {
 
     }
+
+    @Exclude
+    fun badPromiseErrorType(): Promise<Int, Int> {
+        return Promise.ofSuccess(1)
+    }
+
+    /* Utils */
 
     @Exclude
     fun callListeners(v: Int) {
