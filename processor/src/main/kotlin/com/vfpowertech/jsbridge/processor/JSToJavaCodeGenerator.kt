@@ -15,10 +15,10 @@ data class MethodGenerationInfo(
     val name: String,
     val argsType: String,
     val returnType: String?,
-    val argNames: List<String>
+    val argNames: List<String>,
+    val hasReturnValue: Boolean,
+    val returnsPromise: Boolean
 ) {
-    val hasRetVal: Boolean
-        get() = returnType != null
     val hasArgs: Boolean
         get() = argNames.isNotEmpty()
 }
@@ -41,10 +41,6 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         val generatedFQN = "$generatedPackage.$generatedClassName"
         context.logInfo("Generating $generatedFQN")
 
-        //TODO classify methods as:
-        //a) async (retval is Promise)
-        //b) sync (retval is not Promise)
-        //also need to handle FunctionN params since they need to be wrapped
         val classSpec = validateClassSpec(generateClassSpecFor(context.processingEnv, e))
 
         val methodGenerationInfo = ArrayList<MethodGenerationInfo>()
@@ -55,9 +51,9 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
             val argNames = methodSpec.params.map { it.name }
             val argsType = getMethodArgsClassName(classSpec, newSpec)
-            val returnType = if (!isVoidType(context.processingEnv, newSpec.returnType)) newSpec.returnTypeFQN else null
+            val returnType = newSpec.returnTypeFQN
 
-            val genInfo = MethodGenerationInfo(methodSpec.name, argsType,  returnType,  argNames)
+            val genInfo = MethodGenerationInfo(methodSpec.name, argsType, returnType, argNames, methodSpec.hasReturnValue, methodSpec.returnsPromise)
             methodGenerationInfo.add(genInfo)
         }
 

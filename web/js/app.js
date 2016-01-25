@@ -34,3 +34,30 @@ document.getElementById('throwJavaBtn').addEventListener('click', function (ev) 
         console.error('Received java exception: ' + exc);
     })
 }, false);
+
+document.getElementById('asyncJavaBtn').addEventListener('click', function (ev) {
+    console.log('Calling async function');
+    sampleService.asyncMethod(2, 3).then(function (v) {
+        console.log('async method completed: ' + v);
+    }).catch(function (exc) {
+        console.error('async method failed: ' + exc);
+    });
+}, false);
+
+document.getElementById('asyncVoidJavaBtn').addEventListener('click', function (ev) {
+    console.log('Calling async void function');
+    sampleService.asyncVoidMethod(2).then(function (v) {
+        console.log('async void method completed: ' + v);
+    }).catch(function (exc) {
+        console.error('async void method failed: ' + exc);
+    });
+}, false);
+
+document.getElementById('asyncThrowJavaBtn').addEventListener('click', function (ev) {
+    console.log('Calling async throw function');
+    sampleService.asyncThrow(2).then(function (v) {
+        console.log('async throw method completed: ' + v);
+    }).catch(function (exc) {
+        console.error('async throw method failed: ' + exc);
+    });
+}, false);

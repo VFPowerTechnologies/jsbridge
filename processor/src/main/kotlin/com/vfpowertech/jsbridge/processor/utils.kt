@@ -11,6 +11,7 @@ import javax.lang.model.type.PrimitiveType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
+import javax.tools.Diagnostic
 
 fun uncamel(s: CharSequence): String =
     kotlin.text.Regex("(?<!^)([A-Z])").replace(s, { m ->
@@ -19,6 +20,22 @@ fun uncamel(s: CharSequence): String =
 
 fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement): ClassSpec {
     val methods = ArrayList<MethodSpec>()
+
+    val typeUtils = processingEnv.typeUtils
+    val elementUtils = processingEnv.elementUtils
+
+    val promiseType = typeUtils.getDeclaredType(
+        elementUtils.getTypeElement("nl.komponents.kovenant.Promise"),
+        typeUtils.getWildcardType(null, null),
+        elementUtils.getTypeElement("java.lang.Exception").asType()
+    )
+
+    fun logDebug(msg: String) {
+        processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, msg)
+    }
+
+    val className = cls.simpleName.toString()
+    logDebug("Class $className")
 
     for (ee in cls.enclosedElements) {
         if (ee.kind != ElementKind.METHOD)
@@ -36,12 +53,25 @@ fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement)
             params.add(ParamSpec(paramName, p, type, isFuncType))
         }
 
-        val hasReturnValue = !isVoidType(processingEnv, returnType)
-        methods.add(MethodSpec(methodName, ee, params, returnType, hasReturnValue))
+        val returnsPromise = typeUtils.isAssignable(returnType, promiseType)
+        val hasReturnValue = !isVoidType(processingEnv, if (!returnsPromise) {
+            returnType
+        }
+        else {
+            getPromiseReturnType(returnType as DeclaredType)
+        })
+
+        val methodSpec = MethodSpec(methodName, ee, params, returnType, hasReturnValue, returnsPromise)
+        logDebug("$methodSpec")
+        methods.add(methodSpec)
     }
 
-    return ClassSpec(cls.simpleName.toString(), cls, cls.asType() as DeclaredType, methods)
+    return ClassSpec(className, cls, cls.asType() as DeclaredType, methods)
 }
+
+/** Returns V from Promise<V, E> */
+fun getPromiseReturnType(type: DeclaredType): TypeMirror =
+    type.typeArguments.first()
 
 fun getMethodArgsClassName(classSpec: ClassSpec, methodSpec: MethodSpec): String =
     "${classSpec.name}${methodSpec.name.capitalize()}Args"

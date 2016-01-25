@@ -8,7 +8,12 @@ data class MethodSpec(
     val element: ExecutableElement,
     val params: List<ParamSpec>,
     val returnType: TypeMirror,
-    val hasReturnValue: Boolean
+    /**
+     * For normal functions, this is whether or not the return type is void/unit.
+     * If method returns a Promise, this indicates whether that promise returns void or not.
+     */
+    val hasReturnValue: Boolean,
+    val returnsPromise: Boolean
 ) {
     val returnTypeFQN: String
         get() = returnType.toString()
