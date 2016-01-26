@@ -2,17 +2,6 @@ package com.vfpowertech.jsbridge.desktop
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
-import com.vfpowertech.jsbridge.core.dispatcher.JSException
-import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface
-import com.vfpowertech.jsbridge.core.dispatcher.exceptionToJSONString
-import com.vfpowertech.jsbridge.core.services.js.testing.Test
-import com.vfpowertech.jsbridge.core.services.js.testing.TestListener
-import com.vfpowertech.jsbridge.core.services.js.testing.TestResult
-import com.vfpowertech.jsbridge.core.services.js.testing.TestSuite
-import com.vfpowertech.jsbridge.core.services.js.testing.declareTests
-import com.vfpowertech.jsbridge.core.services.js.JSTestService
-import com.vfpowertech.jsbridge.core.services.js.R
-import com.vfpowertech.jsbridge.core.services.js.V
 import com.vfpowertech.jsbridge.core.services.js.testing.TestRunner
 import com.vfpowertech.jsbridge.desktop.console.ConsoleMessageAdded
 import javafx.application.Application
@@ -25,14 +14,9 @@ import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
 import org.slf4j.LoggerFactory
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class App : Application() {
     private val log = LoggerFactory.getLogger(javaClass)
-
-    private fun runTests() {
-    }
 
     override fun start(primaryStage: Stage) {
         val vb = VBox()
