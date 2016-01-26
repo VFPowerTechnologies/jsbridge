@@ -1,4 +1,4 @@
-package com.vfpowertech.jsbridge.desktop
+package com.vfpowertech.jsbridge.core.services.js.testing
 
 import java.util.*
 

@@ -5,9 +5,15 @@ import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
 import com.vfpowertech.jsbridge.core.dispatcher.JSException
 import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface
 import com.vfpowertech.jsbridge.core.dispatcher.exceptionToJSONString
+import com.vfpowertech.jsbridge.core.services.js.testing.Test
+import com.vfpowertech.jsbridge.core.services.js.testing.TestListener
+import com.vfpowertech.jsbridge.core.services.js.testing.TestResult
+import com.vfpowertech.jsbridge.core.services.js.testing.TestSuite
+import com.vfpowertech.jsbridge.core.services.js.testing.declareTests
 import com.vfpowertech.jsbridge.core.services.js.JSTestService
 import com.vfpowertech.jsbridge.core.services.js.R
 import com.vfpowertech.jsbridge.core.services.js.V
+import com.vfpowertech.jsbridge.core.services.js.testing.TestRunner
 import com.vfpowertech.jsbridge.desktop.console.ConsoleMessageAdded
 import javafx.application.Application
 import javafx.scene.Scene
@@ -21,84 +27,6 @@ import javafx.stage.Stage
 import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-
-/** Utility class to stringify exception for passing to js */
-data class ToJSTestResult(val suiteName: String, val testName: String, val passed: Boolean, val exception: String?) {
-    constructor(result: TestResult) : this(
-        result.suiteName,
-        result.testName,
-        result.passed,
-        if (result.exception != null) exceptionToJSONString(result.exception) else null)
-}
-
-class SendResultsToEngineTestListener(private val engine: WebEngineInterface) : TestListener {
-    val objectMapper = ObjectMapper()
-
-    override fun testStarted(testSuite: TestSuite, test: Test) {
-    }
-
-    override fun testFinished(testSuite: TestSuite, test: Test, result: TestResult) {
-        val json = objectMapper.writeValueAsString(ToJSTestResult(result))
-
-        engine.runJS("addResult($json);")
-    }
-}
-
-class TestRunner(
-    private val engineInterface: WebEngineInterface,
-    private val jsTestService: JSTestService
-) : Runnable {
-    //TODO these don't have timeouts...
-    private val tests = declareTests {
-        describe("hasArgs") {
-            it("should return a proper value") {
-                val r = jsTestService.hasArgs(V(5, 6), 5).get()
-                assertEquals(R(11, 6), r)
-            }
-        }
-
-        describe("noArgs") {
-            it("should return successfully") {
-                jsTestService.noArgs().get()
-            }
-        }
-
-        describe("rejectsPromise") {
-            it("should throw a JSException") {
-                val e = assertFailsWith(JSException::class) {
-                    jsTestService.rejectsPromise().get()
-                }
-                assertEquals("Error", e.type)
-            }
-        }
-
-        describe("throwsError") {
-            it("should throw a JSException") {
-                val e = assertFailsWith(JSException::class) {
-                    jsTestService.throwsError().get()
-                }
-                assertEquals("Error", e.type)
-            }
-        }
-
-        describe("missingJSMethod") {
-            it("should throw a JSException") {
-                val e = assertFailsWith(JSException::class) {
-                    jsTestService.missingJSMethod().get()
-                }
-                assertEquals("MissingMethodError", e.type)
-            }
-        }
-    }
-
-    override fun run() {
-        tests.addListener(SendResultsToEngineTestListener(engineInterface))
-
-        engineInterface.runJS("clearSuites();")
-
-        tests.run()
-    }
-}
 
 class App : Application() {
     private val log = LoggerFactory.getLogger(javaClass)
