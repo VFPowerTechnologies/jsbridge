@@ -2,9 +2,11 @@ package com.vfpowertech.jsbridge.desktop
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
+import com.vfpowertech.jsbridge.core.dispatcher.JSException
 import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface
 import com.vfpowertech.jsbridge.core.dispatcher.exceptionToJSONString
-import com.vfpowertech.jsbridge.core.services.js.JSService
+import com.vfpowertech.jsbridge.core.services.js.JSTestService
+import com.vfpowertech.jsbridge.core.services.js.R
 import com.vfpowertech.jsbridge.core.services.js.V
 import com.vfpowertech.jsbridge.desktop.console.ConsoleMessageAdded
 import javafx.application.Application
@@ -17,6 +19,8 @@ import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
 import org.slf4j.LoggerFactory
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 /** Utility class to stringify exception for passing to js */
 data class ToJSTestResult(val suiteName: String, val testName: String, val passed: Boolean, val exception: String?) {
@@ -40,15 +44,49 @@ class SendResultsToEngineTestListener(private val engine: WebEngineInterface) : 
     }
 }
 
-class TestRunner(private val engineInterface: WebEngineInterface) : Runnable {
+class TestRunner(
+    private val engineInterface: WebEngineInterface,
+    private val jsTestService: JSTestService
+) : Runnable {
+    //TODO these don't have timeouts...
     private val tests = declareTests {
-        describe("something") {
-            it("should do stuff") {
-                println("test run")
+        describe("hasArgs") {
+            it("should return a proper value") {
+                val r = jsTestService.hasArgs(V(5, 6), 5).get()
+                assertEquals(R(11, 6), r)
             }
+        }
 
-            it("should throw an exception") {
-                throw RuntimeException("exc")
+        describe("noArgs") {
+            it("should return successfully") {
+                jsTestService.noArgs().get()
+            }
+        }
+
+        describe("rejectsPromise") {
+            it("should throw a JSException") {
+                val e = assertFailsWith(JSException::class) {
+                    jsTestService.rejectsPromise().get()
+                }
+                assertEquals("Error", e.type)
+            }
+        }
+
+        describe("throwsError") {
+            it("should throw a JSException") {
+                val e = assertFailsWith(JSException::class) {
+                    jsTestService.throwsError().get()
+                }
+                assertEquals("Error", e.type)
+            }
+        }
+
+        describe("missingJSMethod") {
+            it("should throw a JSException") {
+                val e = assertFailsWith(JSException::class) {
+                    jsTestService.missingJSMethod().get()
+                }
+                assertEquals("MissingMethodError", e.type)
             }
         }
     }
@@ -65,10 +103,10 @@ class TestRunner(private val engineInterface: WebEngineInterface) : Runnable {
 class App : Application() {
     private val log = LoggerFactory.getLogger(javaClass)
     private lateinit var engineInterface: WebEngineInterface
-    private lateinit var jsService: JSService
+    private lateinit var jsTestService: JSTestService
 
     private fun runTests() {
-        val runner = TestRunner(engineInterface)
+        val runner = TestRunner(engineInterface, jsTestService)
         Thread(runner).start()
     }
 
@@ -92,46 +130,11 @@ class App : Application() {
         val btnBox = HBox()
         vb.children.add(btnBox)
 
-        val notifyBtn = Button("Notify")
-        btnBox.children.add(notifyBtn)
-        notifyBtn.setOnAction { runTests() }
+        val runTestsBtn = Button("Run Java->JS Tests")
+        btnBox.children.add(runTestsBtn)
+        runTestsBtn.setOnAction { runTests() }
 
-        jsService = com.vfpowertech.jsbridge.core.services.js.javatojs.JSServiceToJSProxy(dispatcher)
-        val callBtn = Button("Call JS")
-        btnBox.children.add(callBtn)
-        callBtn.setOnAction {
-            log.info("Attempting to call JS")
-
-            jsService.syncFn(V(5, 6), 5) success {
-                log.info("Result of syncFn: {}", it)
-            } fail {
-                log.info("syncFn failed: {}", it)
-            }
-
-            jsService.noArgsFn() success {
-                log.info("noArgsFn succeeded: {}", it)
-            } fail {
-                log.info("noArgsFn failed: {}", it)
-            }
-
-            jsService.rejects() success {
-                log.info("rejects succeeded: {}", it)
-            } fail {
-                log.info("rejects failed: {}", it.toString())
-            }
-
-            jsService.throwsError() success {
-                log.info("throwsError succeeded: {}", it)
-            } fail {
-                log.info("throwsError failed: {}", it.toString())
-            }
-
-            jsService.missingJSMethod() success {
-                log.info("missingMethod succeeded: {}", it)
-            } fail {
-                log.info("missingMethod failed: {}", it.toString())
-            }
-        }
+        jsTestService = com.vfpowertech.jsbridge.core.services.js.javatojs.JSTestServiceToJSProxy(dispatcher)
 
         engine.load(javaClass.getResource("/index.html").toExternalForm())
 

@@ -67,27 +67,4 @@ function addResult(testResult) {
     suiteList.appendChild(li);
 }
 
-addSuite('Java Tests', true);
-
-//addSuite('Something');
-//addResult({
-//    suiteName: 'Something',
-//    testName: 'Some test',
-//    passed: true,
-//    exception: null
-//});
-
-//addSuite('Something2');
-//addResult({
-//    suiteName: 'Something2',
-//    testName: 'Some test',
-//    passed: false,
-//    exception: 'some exception'
-//});
-
-//addResult({
-//    suiteName: 'Something2',
-//    testName: 'Some test 2',
-//    passed: true,
-//    exception: null
-//});
+addSuite('Java->JS Tests', true);
