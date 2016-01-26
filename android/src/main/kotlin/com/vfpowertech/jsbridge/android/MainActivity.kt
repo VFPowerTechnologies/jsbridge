@@ -10,10 +10,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
-import com.vfpowertech.jsbridge.core.services.js.JSServiceImpl
-import com.vfpowertech.jsbridge.core.services.js.V
-import com.vfpowertech.jsbridge.core.services.TestService
-import com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy
+import com.vfpowertech.jsbridge.core.services.js.testing.TestRunner
 import org.slf4j.LoggerFactory
 
 class MainActivity : Activity() {
@@ -57,21 +54,15 @@ class MainActivity : Activity() {
             }
         })
 
-        val dispatcher = Dispatcher(AndroidWebEngineInterface(webview))
-        val sampleService = com.vfpowertech.jsbridge.core.services.TestService()
-        dispatcher.registerService("SampleService", com.vfpowertech.jsbridge.core.services.SampleServiceJSProxy(sampleService, dispatcher))
+        val engineInterface = AndroidWebEngineInterface(webview)
+        val dispatcher = Dispatcher(engineInterface)
+        val testService = com.vfpowertech.jsbridge.core.services.TestService()
+        dispatcher.registerService("TestService", com.vfpowertech.jsbridge.core.services.jstojava.TestServiceToJavaProxy(testService, dispatcher))
 
-        findViewById(R.id.notifyBtn).setOnClickListener {
-            sampleService.callListeners(5)
-        }
-
-        val jsService = JSServiceImpl(dispatcher)
-        findViewById(R.id.callBtn).setOnClickListener {
-            jsService.syncFn(V(5, 6), 5) success {
-                log.info("Result of syncFn: {}", it)
-            } fail {
-                log.info("syncFn failed: {}", it)
-            }
+        val jsTestService = com.vfpowertech.jsbridge.core.services.js.javatojs.JSTestServiceToJSProxy(dispatcher)
+        findViewById(R.id.runTestsBtn).setOnClickListener {
+            val runner = TestRunner(engineInterface, jsTestService)
+            Thread(runner).start()
         }
 
         webview.loadUrl("file:///android_asset/index.html")
