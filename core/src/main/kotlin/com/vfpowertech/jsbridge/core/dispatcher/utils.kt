@@ -11,14 +11,14 @@ private data class ExceptionJSONRepr(
     val stacktrace: String
 )
 
-fun stacktraceAsString(e: Exception): String {
+fun stacktraceAsString(e: Throwable): String {
     val sw = StringWriter()
     val pw = PrintWriter(sw)
     e.printStackTrace(pw)
     return sw.toString()
 }
 
-fun exceptionToJSONString(e: Exception): String {
+fun exceptionToJSONString(e: Throwable): String {
     val repr = ExceptionJSONRepr(e.message ?: "<no message>", e.javaClass.canonicalName, stacktraceAsString(e))
     return ObjectMapper().writeValueAsString(repr)
 }
