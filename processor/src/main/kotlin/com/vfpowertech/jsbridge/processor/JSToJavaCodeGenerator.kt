@@ -17,7 +17,7 @@ data class MethodGenerationInfo(
     val returnType: String?,
     val argNames: List<String>,
     val hasReturnValue: Boolean,
-    val returnsPromise: Boolean
+    val returnsPromise: Boolean, val promiseReturnType: String?
 ) {
     val hasArgs: Boolean
         get() = argNames.isNotEmpty()
@@ -52,8 +52,19 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
             val argNames = methodSpec.params.map { it.name }
             val argsType = getMethodArgsClassName(classSpec, newSpec)
             val returnType = newSpec.returnTypeFQN
+            val promiseReturnType = if(methodSpec.returnsPromise)
+                getPromiseReturnType(methodSpec.returnType as DeclaredType).toString()
+            else
+                null
 
-            val genInfo = MethodGenerationInfo(methodSpec.name, argsType, returnType, argNames, methodSpec.hasReturnValue, methodSpec.returnsPromise)
+            val genInfo = MethodGenerationInfo(
+                methodSpec.name,
+                argsType,
+                returnType,
+                argNames,
+                methodSpec.hasReturnValue,
+                methodSpec.returnsPromise,
+                promiseReturnType)
             methodGenerationInfo.add(genInfo)
         }
 

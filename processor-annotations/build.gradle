@@ -9,3 +9,5 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
+
+sourceCompatibility = JavaVersion.VERSION_1_7

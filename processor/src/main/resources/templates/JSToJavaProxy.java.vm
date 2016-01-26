@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import kotlin.jvm.functions.Function1;
+import kotlin.Unit;
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher;
 import static com.vfpowertech.jsbridge.core.dispatcher.Utils.exceptionToJSONString;
 
@@ -57,7 +59,7 @@ public final class $className implements com.vfpowertech.jsbridge.core.dispatche
     }
 
     @Override
-    public void call(String methodName, String methodArgs, String callbackId) {
+    public void call(String methodName, String methodArgs, final String callbackId) {
     #foreach($m in $methods)
         if (methodName.equals("${m.name}")) {
             #if($m.hasArgs)
@@ -91,15 +93,24 @@ public final class $className implements com.vfpowertech.jsbridge.core.dispatche
                         #end
                     );
 
-                    promise.success((value) -> {
-                        #sendValueToJS($m.hasReturnValue)
-                        return kotlin.Unit.INSTANCE;
-                    }).fail((e) -> {
-                        #sendExceptionToJS()
-                        return kotlin.Unit.INSTANCE;
-                    });
-                #end
+                    Function1<$m.promiseReturnType, Unit> successHandler = new Function1<$m.promiseReturnType, Unit>() {
+                        @Override
+                        public Unit invoke($m.promiseReturnType value) {
+                            #sendValueToJS($m.hasReturnValue)
+                            return kotlin.Unit.INSTANCE;
+                        }
+                    };
 
+                    Function1<Exception, Unit> failHandler = new Function1<Exception, Unit>() {
+                        @Override
+                        public Unit invoke(Exception e) {
+                            #sendExceptionToJS()
+                            return kotlin.Unit.INSTANCE;
+                        }
+                    };
+
+                    promise.success(successHandler).fail(failHandler);
+                #end
             }
             catch (Exception e) {
                 #sendExceptionToJS()

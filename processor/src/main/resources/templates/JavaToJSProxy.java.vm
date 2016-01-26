@@ -48,36 +48,42 @@ public class $className implements $serviceInterface {
             String jsonArgs = "[]";
         #end
 
-        Deferred<$m.returnType, Exception> deferred = KovenantApi.deferred(Kovenant.INSTANCE.getContext());
+        final Deferred<$m.returnType, Exception> deferred = KovenantApi.deferred(Kovenant.INSTANCE.getContext());
 
-        Function1<String, Unit> resolve = (jsonReturnVal) -> {
-            $m.returnType returnVal;
-            try {
-                //since we're most likely calling into kotlin code, we need to make sure this isn't null
-                //for java's Void we're ok with null
-                #if($m.returnType.toString() == "kotlin.Unit")
-                    returnVal = kotlin.Unit.INSTANCE;
-                #else
-                    returnVal = objectMapper.readValue(jsonReturnVal, ${m.returnType}.class);
-                #end
+        Function1<String, Unit> resolve = new Function1<String, Unit>() {
+            @Override
+            public Unit invoke(String jsonReturnVal) {
+                $m.returnType returnVal;
+                try {
+                    //since we're most likely calling into kotlin code, we need to make sure this isn't null
+                    //for java's Void we're ok with null
+                    #if($m.returnType.toString() == "kotlin.Unit")
+                        returnVal = kotlin.Unit.INSTANCE;
+                    #else
+                        returnVal = objectMapper.readValue(jsonReturnVal, ${m.returnType}.class);
+                    #end
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                deferred.resolve(returnVal);
+                return null;
             }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            deferred.resolve(returnVal);
-            return null;
         };
 
-        Function1<String, Unit> reject = (jsonExc) -> {
-            JSException exception;
-            try {
-                exception = objectMapper.readValue(jsonExc, JSException.class);
+        Function1<String, Unit> reject = new Function1<String, Unit>() {
+            @Override
+            public Unit invoke(String jsonExc) {
+                JSException exception;
+                try {
+                    exception = objectMapper.readValue(jsonExc, JSException.class);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                deferred.reject(exception);
+                return null;
             }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            deferred.reject(exception);
-            return null;
         };
 
         dispatcher.callJS("window.$serviceName", "$m.name", jsonArgs, resolve, reject);

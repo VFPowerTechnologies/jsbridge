@@ -20,16 +20,4 @@ class PlaceholderType(private val fqn: String) : TypeMirror {
     override fun <R : Any, P : Any> accept(v: TypeVisitor<R, P>, p: P): R {
         throw UnsupportedOperationException()
     }
-
-    override fun <A : Annotation> getAnnotationsByType(annotationType: Class<A>): Array<out A> {
-        throw UnsupportedOperationException()
-    }
-
-    override fun <A : Annotation> getAnnotation(annotationType: Class<A>): A {
-        throw UnsupportedOperationException()
-    }
-
-    override fun getAnnotationMirrors(): MutableList<out AnnotationMirror> {
-        throw UnsupportedOperationException()
-    }
 }

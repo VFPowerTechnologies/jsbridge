@@ -17,7 +17,7 @@ import javax.tools.Diagnostic
     "com.vfpowertech.jsbridge.processor.Generate",
     "com.vfpowertech.jsbridge.processor.JSGenerate"
 )
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedOptions("jsBuildDir", "jsCallbackPackage", "jsProxySubpackageName")
 class Processor : AbstractProcessor() {
     private var initialized = false
