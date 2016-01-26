@@ -18,7 +18,14 @@ import javax.tools.Diagnostic
     "com.vfpowertech.jsbridge.processor.JSGenerate"
 )
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
-@SupportedOptions("jsBuildDir", "jsCallbackPackage", "jsProxySubpackageName")
+@SupportedOptions(
+    "jsOutputDir",
+    "jsCallbackPackage",
+    "javaToJSProxySubpackageName",
+    "javaToJSClassSuffix",
+    "jsToJavaProxySubpackageName",
+    "jsToJavaClassSuffix"
+)
 class Processor : AbstractProcessor() {
     private var initialized = false
     private lateinit var context: GenerationContext
