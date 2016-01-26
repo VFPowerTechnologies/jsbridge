@@ -30,12 +30,8 @@ import kotlin.test.assertFailsWith
 
 class App : Application() {
     private val log = LoggerFactory.getLogger(javaClass)
-    private lateinit var engineInterface: WebEngineInterface
-    private lateinit var jsTestService: JSTestService
 
     private fun runTests() {
-        val runner = TestRunner(engineInterface, jsTestService)
-        Thread(runner).start()
     }
 
     override fun start(primaryStage: Stage) {
@@ -49,20 +45,23 @@ class App : Application() {
 
         enableDebugger(engine)
 
-        engineInterface = JFXWebEngineInterface(engine)
+        val engineInterface = JFXWebEngineInterface(engine)
         val dispatcher = Dispatcher(engineInterface)
 
         val testService = com.vfpowertech.jsbridge.core.services.TestService()
         dispatcher.registerService("TestService", com.vfpowertech.jsbridge.core.services.jstojava.TestServiceToJavaProxy(testService, dispatcher))
+
+        val jsTestService = com.vfpowertech.jsbridge.core.services.js.javatojs.JSTestServiceToJSProxy(dispatcher)
 
         val btnBox = HBox()
         vb.children.add(btnBox)
 
         val runTestsBtn = Button("Run Java->JS Tests")
         btnBox.children.add(runTestsBtn)
-        runTestsBtn.setOnAction { runTests() }
-
-        jsTestService = com.vfpowertech.jsbridge.core.services.js.javatojs.JSTestServiceToJSProxy(dispatcher)
+        runTestsBtn.setOnAction {
+            val runner = TestRunner(engineInterface, jsTestService)
+            Thread(runner).start()
+        }
 
         engine.load(javaClass.getResource("/index.html").toExternalForm())
 
