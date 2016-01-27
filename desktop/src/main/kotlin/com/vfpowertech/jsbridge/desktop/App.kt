@@ -29,7 +29,7 @@ class App : Application() {
 
         enableDebugger(engine)
 
-        val engineInterface = JFXWebEngineInterface(engine)
+        val engineInterface = com.vfpowertech.jsbridge.desktopwebengine.JFXWebEngineInterface(engine)
         val dispatcher = Dispatcher(engineInterface)
 
         val testService = com.vfpowertech.jsbridge.core.services.TestService()

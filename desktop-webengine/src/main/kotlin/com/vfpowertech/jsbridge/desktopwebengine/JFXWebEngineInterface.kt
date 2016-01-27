@@ -1,4 +1,4 @@
-package com.vfpowertech.jsbridge.desktop
+package com.vfpowertech.jsbridge.desktopwebengine
 
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
 import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface
