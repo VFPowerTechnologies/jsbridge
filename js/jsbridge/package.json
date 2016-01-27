@@ -1,0 +1,8 @@
+{
+  "name": "jsbridge",
+  "version": "0.1.0",
+  "description": "JS <-> JVM Bridge",
+  "author": "Kevin Tardif <kevin@vfpowertech.com>",
+  "license": "UNLICENSED",
+  "private": true
+}

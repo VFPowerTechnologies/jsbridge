@@ -1,4 +1,4 @@
-var Dispatcher = require('./dispatcher').Dispatcher;
+var Dispatcher = require('jsbridge').Dispatcher;
 var TestService = require('./jvm-service/test-service.js').TestService;
 
 window.dispatcher = new Dispatcher();

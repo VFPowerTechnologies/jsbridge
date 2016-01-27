@@ -1,6 +1,6 @@
 var assert = chai.assert;
 
-var JavaError = require('./dispatcher').JavaError;
+var JavaError = require('jsbridge').JavaError;
 
 describe('TestService', function () {
     beforeEach(function () {

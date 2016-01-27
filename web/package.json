@@ -1,5 +1,5 @@
 {
-  "name": "jsbridge",
+  "name": "jsbridge-test",
   "private": true,
   "devDependencies": {
     "browserify": "^13.0.0",
