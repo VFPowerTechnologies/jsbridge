@@ -8,4 +8,5 @@ include 'processor'
 include 'core-services'
 include 'processor-annotations'
 include 'desktop-webengine'
+include 'android-webengine'
 
