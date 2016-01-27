@@ -8,7 +8,7 @@ buildscript {
             jackson: '2.6.4',
             slf4j: "1.7.13",
             kovenant: '3.0.0-beta.3',
-            roboVM: '1.12.0'
+            roboVM: '1.13.0'
         ]
     }
 }
