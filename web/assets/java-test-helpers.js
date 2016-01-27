@@ -55,7 +55,6 @@ function addResult(testResult) {
 
     var e = testResult.exception;
     if (!testResult.pass && e) {
-        e = JSON.parse(e);
         var pre = document.createElement('pre');
         pre.setAttribute('class', 'error');
         if (e.message)
