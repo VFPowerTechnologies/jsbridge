@@ -1,0 +1,17 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile project(':core')
+    compile "org.robovm:robovm-rt:$versions.roboVM"
+    compile "org.robovm:robovm-cocoatouch:$versions.roboVM"
+}

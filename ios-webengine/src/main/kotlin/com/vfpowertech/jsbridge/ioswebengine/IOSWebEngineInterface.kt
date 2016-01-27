@@ -1,4 +1,4 @@
-package com.vfpowertech.jsbridge.ios
+package com.vfpowertech.jsbridge.ioswebengine
 
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
 import com.vfpowertech.jsbridge.core.dispatcher.WebEngineInterface

@@ -1,6 +1,7 @@
 package com.vfpowertech.jsbridge.ios
 
 import com.vfpowertech.jsbridge.core.dispatcher.Dispatcher
+import com.vfpowertech.jsbridge.ioswebengine.IOSWebEngineInterface
 import org.robovm.apple.foundation.NSBundle
 import org.robovm.apple.foundation.NSURL
 import org.robovm.apple.foundation.NSURLRequest
