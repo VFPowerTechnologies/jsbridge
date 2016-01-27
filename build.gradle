@@ -16,6 +16,33 @@ buildscript {
     }
 }
 
+def projectsToPublish = [
+    ':core',
+    ':processor',
+    ':processor-annotations',
+    ':desktop-webengine',
+    ':ios-webengine',
+    //':android-webengine',
+].collect { project(it) }
+
+configure(projectsToPublish) {
+    apply plugin: 'maven-publish'
+
+    project.afterEvaluate { p ->
+        publishing {
+            publications {
+                maven(MavenPublication) {
+                    groupId = rootProject.group
+                    version = rootProject.version
+                    artifactId = "jsbridge-$p.name"
+
+                    from components.java
+                }
+            }
+        }
+    }
+}
+
 subprojects {
     repositories {
         jcenter()
