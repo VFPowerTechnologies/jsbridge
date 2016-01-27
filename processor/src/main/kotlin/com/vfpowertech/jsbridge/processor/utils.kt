@@ -5,6 +5,7 @@ import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.PrimitiveType
@@ -49,6 +50,11 @@ fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement)
             continue
 
         ee as ExecutableElement
+
+        val modifiers = ee.modifiers
+        if (Modifier.PUBLIC !in modifiers || Modifier.STATIC in modifiers)
+            continue
+
         val methodName = ee.simpleName.toString()
         val returnType = ee.returnType
         val params = ArrayList<ParamSpec>()

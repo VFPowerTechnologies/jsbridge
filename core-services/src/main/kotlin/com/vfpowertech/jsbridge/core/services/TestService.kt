@@ -13,6 +13,8 @@ class TestService {
     private val listeners = ArrayList<(Int) -> Unit>()
     private val timer = Timer(true)
 
+    private fun ignoreMe() {}
+
     /* Listener functions */
     fun addListener(listener: (Int) -> Unit) {
         listeners.add(listener)
