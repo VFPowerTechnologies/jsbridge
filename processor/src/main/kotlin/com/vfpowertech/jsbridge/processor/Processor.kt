@@ -1,7 +1,7 @@
 package com.vfpowertech.jsbridge.processor
 
-import com.vfpowertech.jsbridge.processor.annotations.Generate
-import com.vfpowertech.jsbridge.processor.annotations.JSGenerate
+import com.vfpowertech.jsbridge.processor.annotations.JSToJavaGenerate
+import com.vfpowertech.jsbridge.processor.annotations.JavaToJSGenerate
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.RuntimeConstants
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
@@ -72,10 +72,10 @@ class Processor : AbstractProcessor() {
         }
 
         val jsToJavaCodeGenerator = JSToJavaCodeGenerator(context)
-        jsToJavaCodeGenerator.generate(roundEnv.getElementsAnnotatedWith(Generate::class.java))
+        jsToJavaCodeGenerator.generate(roundEnv.getElementsAnnotatedWith(JSToJavaGenerate::class.java))
 
         val javaToJSCodeGenerator = JavaToJSCodeGenerator(context)
-        javaToJSCodeGenerator.generate(roundEnv.getElementsAnnotatedWith(JSGenerate::class.java))
+        javaToJSCodeGenerator.generate(roundEnv.getElementsAnnotatedWith(JavaToJSGenerate::class.java))
 
         return true
     }

@@ -1,13 +1,13 @@
 package com.vfpowertech.jsbridge.core.services
 
 import com.vfpowertech.jsbridge.processor.annotations.Exclude
-import com.vfpowertech.jsbridge.processor.annotations.Generate
+import com.vfpowertech.jsbridge.processor.annotations.JSToJavaGenerate
 import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.deferred
 import java.util.*
 import kotlin.concurrent.timerTask
 
-@Generate
+@JSToJavaGenerate
 class TestService {
     var value: Int = 0
     private val listeners = ArrayList<(Int) -> Unit>()

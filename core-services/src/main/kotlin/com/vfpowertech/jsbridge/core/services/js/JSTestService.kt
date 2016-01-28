@@ -1,11 +1,11 @@
 package com.vfpowertech.jsbridge.core.services.js
 
-import com.vfpowertech.jsbridge.processor.annotations.JSGenerate
+import com.vfpowertech.jsbridge.processor.annotations.JavaToJSGenerate
 import com.vfpowertech.jsbridge.processor.annotations.JSServiceName
 import nl.komponents.kovenant.Promise
 
 @JSServiceName("jsTestService")
-@JSGenerate
+@JavaToJSGenerate
 interface JSTestService {
     fun hasArgs(v: V, n: Int): Promise<R, Exception>
     fun noArgs(): Promise<Unit, Exception>
