@@ -31,6 +31,17 @@ install {
     }
 }
 
+//for other projects this info is configured using the maven-publishing plugin
+//since we can't use that here, we need to properly modify the dep info (mostly for the artifactId)
+def installer = install.repositories.mavenInstaller
+
+[installer]*.pom*.whenConfigured { pom ->
+    def coreDep = pom.dependencies.find { it.artifactId == 'core' }
+    coreDep.version = rootProject.version
+    coreDep.groupId = rootProject.group
+    coreDep.artifactId = 'jsbridge-core'
+}
+
 dependencies {
     compile project(':core')
 }
