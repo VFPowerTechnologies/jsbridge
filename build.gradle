@@ -21,6 +21,7 @@ buildscript {
 def projectsToPublish = [
     ':core',
     ':processor',
+    ':processor-annotations',
     ':desktop-webengine',
     ':ios-webengine',
     //see android-webengine's build.gradle for android config

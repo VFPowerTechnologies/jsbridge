@@ -9,11 +9,3 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
-
-sourceCompatibility = JavaVersion.VERSION_1_7
-
-dependencies {
-    compile project(':core')
-    compile project(':processor-annotations')
-    compile 'org.apache.velocity:velocity:1.7'
-}

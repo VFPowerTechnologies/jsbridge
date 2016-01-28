@@ -23,8 +23,9 @@ kapt {
 dependencies {
     compile project(':core')
     kapt project(':processor')
+    compile project(':processor-annotations')
     //else stuff doesn't get recompiled since kapt doesn't seem to check
-    compile project(':processor')
+    //compile project(':processor')
 
     //compile "org.jetbrains.kotlin:kotlin-test:$versions.kotlin"
 }
