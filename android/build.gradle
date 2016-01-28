@@ -39,6 +39,6 @@ android {
 dependencies {
     compile "org.slf4j:slf4j-android:$versions.slf4j"
     compile project(':core')
-    compile project(':core-services')
+    compile project(':test-services')
     compile project(':android-webengine')
 }

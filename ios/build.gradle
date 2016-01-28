@@ -30,10 +30,9 @@ idea {
 
 dependencies {
     compile project(':core')
-    compile project(':core-services')
+    compile project(':test-services')
     compile project(':ios-webengine')
     compile "org.robovm:robovm-rt:$versions.roboVM"
     compile "org.robovm:robovm-cocoatouch:$versions.roboVM"
-    //TMP
     compile 'org.slf4j:slf4j-simple:1.7.13'
 }
