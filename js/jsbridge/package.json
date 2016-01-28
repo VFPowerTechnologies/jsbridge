@@ -5,5 +5,8 @@
   "author": "Kevin Tardif <kevin@vfpowertech.com>",
   "license": "UNLICENSED",
   "private": true,
-  "main": "lib"
+  "main": "lib",
+  "scripts": {
+    "build:global-init": "browserify global-init.js -o"
+  }
 }
