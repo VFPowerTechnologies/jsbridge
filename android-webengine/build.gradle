@@ -6,11 +6,13 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$versions.androidGradle"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$versions.androidMavenGradle"
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion versions.androidCompileSdk
@@ -21,6 +23,17 @@ android {
     }
 }
 
+install {
+    repositories.mavenInstaller {
+        pom.version = rootProject.version
+        pom.groupId = rootProject.group
+        pom.artifactId = 'jsbridge-android-webengine'
+    }
+}
+
 dependencies {
     compile project(':core')
 }
+
+//map to the same publish task as the other modules
+task publishToMavenLocal(dependsOn: install)
