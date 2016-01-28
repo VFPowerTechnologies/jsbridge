@@ -104,7 +104,6 @@ Dispatcher.prototype._getNextCallbackId = function () {
 };
 
 //IOS Webview
-//TODO make sure this isn't also used on OSX when using jfx
 if (window.nativeDispatcher === undefined) {
     if (window.webkit.messageHandlers !== undefined) {
         window.nativeDispatcher = {
