@@ -15,8 +15,8 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 kapt {
     generateStubs = true
     arguments {
-        arg("jsOutputDir", "$rootProject.projectDir/web/js/jvm-service")
-        arg("jsCallbackPackage", "com.vfpowertech.jsbridge.core.services.jscallback")
+        arg('jsOutputDir', "$rootProject.projectDir/web/js/jvm-service")
+        arg('jsCallbackPackage', 'com.vfpowertech.jsbridge.core.services.jscallback')
     }
 }
 

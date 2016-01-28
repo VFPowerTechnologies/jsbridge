@@ -26,7 +26,8 @@ import javax.tools.Diagnostic
     "javaToJSProxySubpackageName",
     "javaToJSClassSuffix",
     "jsToJavaProxySubpackageName",
-    "jsToJavaClassSuffix"
+    "jsToJavaClassSuffix",
+    "jsAddModuleExports"
 )
 class Processor : AbstractProcessor() {
     private var initialized = false

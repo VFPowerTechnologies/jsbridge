@@ -27,8 +27,10 @@ $p.name
         window.dispatcher.call("$className", "$m.name", JSON.stringify(args), resolve, reject);
     });
 }
-
 #end
+
+#if($addModuleExports)
 module.exports = {
     $className: $className
 };
+#end

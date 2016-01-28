@@ -91,6 +91,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         val vc = VelocityContext()
         vc.put("className", className)
         vc.put("methods", classSpec.methods)
+        vc.put("addModuleExports", context.options.jsAddModuleExports)
 
         context.logInfo("Generating $path")
 
