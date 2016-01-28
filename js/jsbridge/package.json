@@ -4,5 +4,6 @@
   "description": "JS <-> JVM Bridge",
   "author": "Kevin Tardif <kevin@vfpowertech.com>",
   "license": "UNLICENSED",
-  "private": true
+  "private": true,
+  "main": "lib"
 }
