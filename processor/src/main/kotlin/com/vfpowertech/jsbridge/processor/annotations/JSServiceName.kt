@@ -1,4 +1,4 @@
-package com.vfpowertech.jsbridge.processor
+package com.vfpowertech.jsbridge.processor.annotations
 
 /**
  * Specifies the window-object relative path to the service.

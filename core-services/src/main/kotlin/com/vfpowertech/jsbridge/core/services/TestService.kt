@@ -1,7 +1,7 @@
 package com.vfpowertech.jsbridge.core.services
 
-import com.vfpowertech.jsbridge.processor.Exclude
-import com.vfpowertech.jsbridge.processor.Generate
+import com.vfpowertech.jsbridge.processor.annotations.Exclude
+import com.vfpowertech.jsbridge.processor.annotations.Generate
 import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.deferred
 import java.util.*

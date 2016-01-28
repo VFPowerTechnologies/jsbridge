@@ -22,7 +22,6 @@ kapt {
 
 dependencies {
     compile project(':core')
-    compile project(":processor-annotations")
     kapt project(':processor')
     //else stuff doesn't get recompiled since kapt doesn't seem to check
     compile project(':processor')

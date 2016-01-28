@@ -1,5 +1,6 @@
 package com.vfpowertech.jsbridge.processor
 
+import com.vfpowertech.jsbridge.processor.annotations.JSServiceName
 import org.apache.velocity.VelocityContext
 import java.util.*
 import javax.lang.model.element.Element

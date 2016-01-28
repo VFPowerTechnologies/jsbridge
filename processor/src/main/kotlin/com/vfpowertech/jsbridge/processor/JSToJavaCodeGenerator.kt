@@ -1,5 +1,6 @@
 package com.vfpowertech.jsbridge.processor
 
+import com.vfpowertech.jsbridge.processor.annotations.Exclude
 import org.apache.velocity.VelocityContext
 import java.io.BufferedWriter
 import java.io.File

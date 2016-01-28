@@ -1,5 +1,7 @@
 package com.vfpowertech.jsbridge.processor
 
+import com.vfpowertech.jsbridge.processor.annotations.Generate
+import com.vfpowertech.jsbridge.processor.annotations.JSGenerate
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.RuntimeConstants
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
@@ -14,8 +16,8 @@ import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
 
 @SupportedAnnotationTypes(
-    "com.vfpowertech.jsbridge.processor.Generate",
-    "com.vfpowertech.jsbridge.processor.JSGenerate"
+    "com.vfpowertech.jsbridge.processor.annotations.Generate",
+    "com.vfpowertech.jsbridge.processor.annotations.JSGenerate"
 )
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedOptions(

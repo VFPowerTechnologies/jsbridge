@@ -1,7 +1,7 @@
 package com.vfpowertech.jsbridge.core.services.js
 
-import com.vfpowertech.jsbridge.processor.JSGenerate
-import com.vfpowertech.jsbridge.processor.JSServiceName
+import com.vfpowertech.jsbridge.processor.annotations.JSGenerate
+import com.vfpowertech.jsbridge.processor.annotations.JSServiceName
 import nl.komponents.kovenant.Promise
 
 @JSServiceName("jsTestService")
