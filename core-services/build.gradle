@@ -25,4 +25,6 @@ dependencies {
     kapt project(':processor')
     //else stuff doesn't get recompiled since kapt doesn't seem to check
     compile project(':processor')
+
+    compile "org.jetbrains.kotlin:kotlin-test:$versions.kotlin"
 }
