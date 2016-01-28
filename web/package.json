@@ -2,13 +2,12 @@
   "name": "jsbridge-test",
   "private": true,
   "devDependencies": {
-    "browserify": "^13.0.0",
     "debowerify": "^1.3.1"
   },
   "browserify": {
-      "transform": [
-          "debowerify"
-      ]
+    "transform": [
+      "debowerify"
+    ]
   },
   "scripts": {
     "build:app": "browserify js/app.js -o assets/js/app.js",
