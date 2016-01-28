@@ -16,11 +16,11 @@ android {
     buildToolsVersion versions.androidBuildTools
 
     defaultConfig {
-        applicationId "com.vfpowertech.jsbridge.android"
+        applicationId 'com.vfpowertech.jsbridge.android'
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0"
+        versionName rootProject.version
     }
 
     sourceSets {
