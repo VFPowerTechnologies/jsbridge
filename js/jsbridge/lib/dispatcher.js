@@ -10,11 +10,18 @@ function deserializeJavaException(repr) {
 };
 
 //XXX might be better to keep separate maps for callbacks and listeners? no need to verify ids before putting them in, etc
-function Dispatcher() {
+function Dispatcher(debug) {
     //TODO replace with guid (or just check to make sure there's not already such a
     //registered callback or pick a diff number (for handling overflows)
     this._nextCallbackId = 0;
     this._callbacks = [];
+    this.debug = !!debug
+};
+
+Dispatcher.prototype._logInfo = function (msg) {
+    if (!this.debug)
+        return;
+    console.log(msg);
 };
 
 //TODO make sure methodArgs is an array, or null for no args
@@ -22,14 +29,14 @@ Dispatcher.prototype.call = function (service, methodName, methodArgs, resolve, 
     var callbackId = this._getNextCallbackId();
     this._callbacks[callbackId] = [resolve, reject, true];
 
-    console.log('js->native: ' + service + '.' + methodName + '(' + methodArgs + ')');
+    this._logInfo('js->native: ' + service + '.' + methodName + '(' + methodArgs + ')');
 
     window.nativeDispatcher.call(service, methodName, methodArgs, callbackId);
 };
 
 Dispatcher.prototype.handleCallFromNative = function (serviceName, methodName, methodArgs, callbackId) {
     var args = methodArgs;
-    console.log(serviceName + "." + methodName + "(" + args + ") (" + callbackId + ")");
+    this._logInfo(serviceName + "." + methodName + "(" + args + ") (" + callbackId + ")");
 
     //TODO maybe have variants for sync and async fns
     //for sync, just run the fun and send data back
@@ -74,7 +81,7 @@ Dispatcher.prototype.handleCallFromNative = function (serviceName, methodName, m
 }
 
 Dispatcher.prototype.sendValueToCallback = function (callbackId, isError, value) {
-    console.log("Received " + value + " for callbackId=" + callbackId)
+    this._logInfo("Received " + value + " for callbackId=" + callbackId)
 
     //TODO if a listener, reject can be null, so maybe check and emit a warning?
     var r = this._callbacks[callbackId];
