@@ -94,7 +94,7 @@ describe('TestService', function () {
     /* Async functions */
 
     describe('asyncAdd', function () {
-        it('should work when promised with valid values', function () {
+        it('should work when called with valid values', function () {
             return assert.becomes(testService.asyncAdd(2, 3), 5);
         });
     });
