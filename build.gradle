@@ -32,6 +32,10 @@ configure(projectsToPublish) {
     apply plugin: 'maven-publish'
 
     project.afterEvaluate { p ->
+        task sourceJar(type: Jar) {
+            from sourceSets.main.allSource
+        }
+
         publishing {
             publications {
                 maven(MavenPublication) {
@@ -40,6 +44,10 @@ configure(projectsToPublish) {
                     artifactId = "jsbridge-$p.name"
 
                     from components.java
+
+                    artifact sourceJar {
+                        classifier 'sources'
+                    }
                 }
             }
         }
