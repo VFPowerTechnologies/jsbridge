@@ -19,6 +19,10 @@ class Dispatcher(private val engine: WebEngineInterface) {
         services[serviceName] = service
     }
 
+    fun unregisterService(serviceName: String): Boolean {
+        return services.remove(serviceName) != null
+    }
+
     //string to avoid having to recast constantly
     private fun getNextCallbackId(): String {
         val r = nextCallbackId
