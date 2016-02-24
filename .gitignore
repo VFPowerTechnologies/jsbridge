@@ -4,3 +4,4 @@ build/
 robovm-build/
 *.iml
 local.properties
+test-services/generated
