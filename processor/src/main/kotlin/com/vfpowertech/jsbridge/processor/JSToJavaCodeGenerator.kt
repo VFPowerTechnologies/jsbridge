@@ -42,7 +42,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         val generatedFQN = "$generatedPackage.$generatedClassName"
         context.logInfo("Generating $generatedFQN")
 
-        val classSpec = validateClassSpec(generateClassSpecFor(context.processingEnv, e))
+        val classSpec = validateClassSpec(generateClassSpecFor(context.processingEnv, e, context.options.jsVerbose))
 
         val methodGenerationInfo = ArrayList<MethodGenerationInfo>()
         //generate method arg classes

@@ -35,10 +35,12 @@ fun isValidPromiseType(processingEnv: ProcessingEnvironment, type: TypeMirror): 
     return typeUtils.isAssignable(type, promiseType)
 }
 
-fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement): ClassSpec {
+fun generateClassSpecFor(processingEnv: ProcessingEnvironment, cls: TypeElement, verbose: Boolean): ClassSpec {
     val methods = ArrayList<MethodSpec>()
 
     fun logDebug(msg: String) {
+        if (!verbose)
+            return
         processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, msg)
     }
 
