@@ -7,11 +7,7 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.PrimitiveType
-import javax.lang.model.type.TypeKind
-import javax.lang.model.type.TypeMirror
-import javax.lang.model.type.WildcardType
+import javax.lang.model.type.*
 import javax.tools.Diagnostic
 
 fun uncamel(s: CharSequence): String =
@@ -218,3 +214,7 @@ fun splitPackageClass(fqn: CharSequence): Pair<String, String> {
     val className = fqn.substring(idx+1)
     return pkg to className
 }
+
+//TODO verify this
+fun isValidJSClassName(className: String): Boolean =
+    Regex("[a-zA-Z$][a-zA-Z_0-9$]*").matches(className)
