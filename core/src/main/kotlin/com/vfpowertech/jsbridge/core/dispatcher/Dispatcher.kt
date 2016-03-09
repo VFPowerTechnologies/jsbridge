@@ -23,6 +23,12 @@ class Dispatcher(private val engine: WebEngineInterface) {
         return services.remove(serviceName) != null
     }
 
+    /** Clears all pending promises and callback ids. */
+    fun resetState() {
+        nextCallbackId = 0
+        pendingPromises.clear()
+    }
+
     //string to avoid having to recast constantly
     private fun getNextCallbackId(): String {
         val r = nextCallbackId
