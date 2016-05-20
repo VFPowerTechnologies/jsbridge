@@ -14,9 +14,9 @@ import nl.komponents.kovenant.KovenantApi;
 
 @javax.annotation.Generated("jsbridge")
 public class $className implements $serviceInterface {
-    private Dispatcher dispatcher;
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private Logger log = LoggerFactory.getLogger(${className}.class);
+    private final Dispatcher dispatcher;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Logger log = LoggerFactory.getLogger(${className}.class);
 
     public $className(Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
