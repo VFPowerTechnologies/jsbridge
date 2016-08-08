@@ -37,7 +37,7 @@ class Dispatcher(private val engine: WebEngineInterface) {
     }
 
     fun call(serviceName: String, methodName: String, methodArgs: String, callbackId: String) {
-        log.debug("js->native: {}.{}({}) -> {}", serviceName, methodName, methodArgs, callbackId)
+        log.trace("js->native: {}.{}({}) -> {}", serviceName, methodName, methodArgs, callbackId)
 
         val service = services[serviceName]
         if (service == null) {
@@ -50,7 +50,7 @@ class Dispatcher(private val engine: WebEngineInterface) {
     }
 
     fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean) {
-        log.debug("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
+        log.trace("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
         //this embeds the json as object directly, so we don't need to bother deserializing it on the js side
         engine.runJS("window.dispatcher.sendValueToCallback(\"$callbackId\", $isError, $json);")
     }
@@ -60,7 +60,7 @@ class Dispatcher(private val engine: WebEngineInterface) {
     //need to register a callback with th
     fun callJS(serviceName: String, methodName: String, methodArgs: String, resolve: (String) -> Unit, reject: (String) -> Unit) {
         val callbackId = getNextCallbackId()
-        log.debug("native->js: {}.{}({}) -> {}", serviceName, methodName, methodArgs, callbackId)
+        log.trace("native->js: {}.{}({}) -> {}", serviceName, methodName, methodArgs, callbackId)
         //we add this first, as executeScript is sync
         pendingPromises[callbackId] = PromiseCallbacks(resolve, reject)
         //TODO catch exceptions and fail the promise?
@@ -68,7 +68,7 @@ class Dispatcher(private val engine: WebEngineInterface) {
     }
 
     fun callbackFromJS(callbackId: String, isError: Boolean, jsonRetVal: String) {
-        log.debug("response from js: {} -> {}", callbackId, jsonRetVal)
+        log.trace("response from js: {} -> {}", callbackId, jsonRetVal)
         val callbacks = pendingPromises[callbackId]
         if (callbacks == null) {
             log.error("Value from js received for callbackId={}, but no pending request was found", callbackId)
