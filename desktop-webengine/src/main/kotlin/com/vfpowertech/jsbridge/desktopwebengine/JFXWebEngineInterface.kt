@@ -11,19 +11,14 @@ class JFXWebEngineInterface(private val engine: WebEngine) : WebEngineInterface 
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun runJS(js: String) {
-        //executeScript must be called from the main thread
-        if (Platform.isFxApplicationThread())
-            //propagate any exceptions to caller immediately
-            engine.executeScript(js)
-        else
-            Platform.runLater {
-                try {
-                    engine.executeScript(js)
-                }
-                catch (e: Throwable) {
-                    log.error("Script execution failed for: {}", js, e)
-                }
+        Platform.runLater {
+            try {
+                engine.executeScript(js)
             }
+            catch (e: Throwable) {
+                log.error("Script execution failed for: {}", js, e)
+            }
+        }
     }
 
     override fun register(dispatcher: Dispatcher) {
