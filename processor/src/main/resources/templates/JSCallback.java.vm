@@ -28,12 +28,20 @@ public final class $className implements $functionSig {
     }
 
     @Override
-    public $retType invoke(${argType} arg0) {
+    public $retType invoke(
+    #if($argType)
+    ${argType} arg0
+    #end
+    ) {
         //hack to bypass checked exceptions
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            #if($argType)
             String json = objectMapper.writeValueAsString(arg0);
             dispatcher.sendValueBackToJS(callbackId, json, false);
+            #else
+            dispatcher.sendValueBackToJS(callbackId, null, false);
+            #end
         }
         catch (Exception e) {
             throw new RuntimeException(e);

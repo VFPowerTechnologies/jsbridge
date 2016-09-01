@@ -11,6 +11,7 @@ import kotlin.concurrent.timerTask
 class TestService {
     var value: Int = 0
     private val listeners = ArrayList<(Int) -> Unit>()
+    private val noArgListeners = ArrayList<() -> Unit>()
     private val timer = Timer(true)
 
     private fun ignoreMe() {}
@@ -18,6 +19,10 @@ class TestService {
     /* Listener functions */
     fun addListener(listener: (Int) -> Unit) {
         listeners.add(listener)
+    }
+
+    fun addNoArgsListener(listener: () -> Unit) {
+        noArgListeners.add(listener)
     }
 
     /* Sync functions */
@@ -88,5 +93,9 @@ class TestService {
 
     fun callListeners(v: Int) {
         listeners.forEach { it(v) }
+    }
+
+    fun callNoArgsListeners() {
+        noArgListeners.forEach { it() }
     }
 }

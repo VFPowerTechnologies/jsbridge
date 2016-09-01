@@ -182,7 +182,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
             vc.put("className", jscallbackName)
             vc.put("functionSig", sig)
             vc.put("retType", retType)
-            vc.put("argType", funcArgs.first())
+            vc.put("argType", funcArgs.firstOrNull())
 
             context.writeTemplate(context.templates.jsCallback, fqn, null, vc)
         }

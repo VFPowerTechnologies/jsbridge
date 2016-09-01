@@ -109,7 +109,7 @@ fun isVoidType(processingEnv: ProcessingEnvironment, mirror: TypeMirror): Boolea
 }
 
 fun getFunctionTypes(mirror: TypeMirror): Pair<String, List<String>> {
-    var argTypes = ArrayList<String>()
+    val argTypes = ArrayList<String>()
     //TODO make sure this is a fun subtype
 
     mirror as DeclaredType
@@ -121,19 +121,32 @@ fun getFunctionTypes(mirror: TypeMirror): Pair<String, List<String>> {
 
     //drop return type
     val retType = argTypes.last()
-    argTypes.dropLast(1)
+    argTypes.removeAt(argTypes.size - 1)
 
     return retType to argTypes
 }
 
 fun isFunctionType(mirror: TypeMirror): Boolean =
-    mirror.toString().startsWith("kotlin.jvm.functions.Function")
+    isFunctionType(mirror.toString())
+
+//this contains the generic params afterwards, so we only match from the beginning
+fun isFunctionType(typeStr: String): Boolean =
+    typeStr.startsWith("kotlin.jvm.functions.Function")
+
+fun getFunctionArity(typeStr: String): Int {
+    val regex = """^kotlin.jvm.functions.Function(\d+)""".toRegex()
+
+    val m = regex.find(typeStr) ?: throw IllegalArgumentException("Not a function type: $typeStr")
+
+    return m.groupValues[1].toInt()
+}
 
 //only support functions with a single arg with a Unit return type right now
 fun checkIfFunctionTypeIsSupported(fqn: String, mirror: TypeMirror): Boolean {
     val typeStr = mirror.toString()
-    if (typeStr.startsWith("kotlin.jvm.functions.Function")) {
-        if (!typeStr.startsWith("kotlin.jvm.functions.Function1"))
+    if (isFunctionType(typeStr)) {
+        val arity = getFunctionArity(typeStr)
+        if (arity > 1)
             throw IllegalArgumentException("$fqn: Functions with more than one arg aren't supported")
 
         mirror as DeclaredType

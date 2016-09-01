@@ -26,6 +26,24 @@ describe('TestService', function () {
         });
     });
 
+    describe('addNoArgsListener', function () {
+        it('should successfully register a listener', function () {
+            //first we register a listener, then we call all registered listeners
+            //then we use the callback to fufill the promise (or reject/timeout on error)
+            return new Promise(function (resolve, reject) {
+                function cb() {
+                    resolve();
+                }
+
+                return testService.addNoArgsListener(cb).then(function () {
+                    return testService.callNoArgsListeners();
+                }).catch(function (e) {
+                    reject(e);
+                });
+            });
+        });
+    });
+
     /* Sync functions */
 
     describe('syncAdd', function () {
