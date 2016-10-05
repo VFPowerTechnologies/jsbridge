@@ -1,6 +1,5 @@
 package $package;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.core.JsonParser;
@@ -20,21 +19,29 @@ public final class $className implements $functionSig {
         }
     }
 
-    private String callbackId;
-    private Dispatcher dispatcher;
+    private final String callbackId;
+    private final Dispatcher dispatcher;
 
-    public $className(String callbackId, Dispatcher dispatcher) {
+    private $className(String callbackId, Dispatcher dispatcher) {
         this.callbackId = callbackId;
         this.dispatcher = dispatcher;
     }
 
     @Override
-    public $retType invoke(${argType} arg0) {
+    public $retType invoke(
+    #if($argType)
+    ${argType} arg0
+    #end
+    ) {
         //hack to bypass checked exceptions
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            #if($argType)
             String json = objectMapper.writeValueAsString(arg0);
             dispatcher.sendValueBackToJS(callbackId, json, false);
+            #else
+            dispatcher.sendValueBackToJS(callbackId, null, false);
+            #end
         }
         catch (Exception e) {
             throw new RuntimeException(e);

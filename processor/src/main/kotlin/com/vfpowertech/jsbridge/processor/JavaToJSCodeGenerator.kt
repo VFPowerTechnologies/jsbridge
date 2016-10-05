@@ -20,7 +20,7 @@ class JavaToJSCodeGenerator(private val context: GenerationContext) {
     fun generate(elements: Set<Element>) {
         val classes = ArrayList<ClassSpec>()
         for (e in elements) {
-            val classInfo = validateClassSpec(generateClassSpecFor(context.processingEnv, e as TypeElement))
+            val classInfo = validateClassSpec(generateClassSpecFor(context.processingEnv, e as TypeElement, context.options.jsVerbose))
             classes.add(classInfo)
         }
 

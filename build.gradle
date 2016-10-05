@@ -1,19 +1,19 @@
 group 'com.vfpowertech'
-version '0.1.0'
+version '0.2.0'
 
 buildscript {
     ext {
         versions = [
-            kotlin: '1.0.0-beta-3595',
-            jackson: '2.6.4',
-            slf4j: '1.7.13',
+            kotlin: '1.0.3',
+            jackson: '2.8.1',
+            slf4j: '1.7.15',
             logbackClassic: '1.1.3',
-            kovenant: '3.0.0-beta.3',
+            kovenant: '3.3.0',
             roboVM: '1.13.0',
-            androidGradle: '1.3.1',
+            androidGradle: '2.1.0',
             androidMavenGradle: '1.3',
-            androidBuildTools: '23.0.2',
-            androidCompileSdk: 19,
+            androidBuildTools: '23.0.3',
+            androidCompileSdk: 23,
         ]
     }
 }
@@ -32,6 +32,10 @@ configure(projectsToPublish) {
     apply plugin: 'maven-publish'
 
     project.afterEvaluate { p ->
+        task sourceJar(type: Jar) {
+            from sourceSets.main.allSource
+        }
+
         publishing {
             publications {
                 maven(MavenPublication) {
@@ -40,6 +44,10 @@ configure(projectsToPublish) {
                     artifactId = "jsbridge-$p.name"
 
                     from components.java
+
+                    artifact sourceJar {
+                        classifier 'sources'
+                    }
                 }
             }
         }

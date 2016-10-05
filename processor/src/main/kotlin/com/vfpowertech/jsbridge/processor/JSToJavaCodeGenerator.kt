@@ -1,6 +1,7 @@
 package com.vfpowertech.jsbridge.processor
 
 import com.vfpowertech.jsbridge.processor.annotations.Exclude
+import com.vfpowertech.jsbridge.processor.annotations.JSToJavaGenerate
 import org.apache.velocity.VelocityContext
 import java.io.BufferedWriter
 import java.io.File
@@ -42,7 +43,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
         val generatedFQN = "$generatedPackage.$generatedClassName"
         context.logInfo("Generating $generatedFQN")
 
-        val classSpec = validateClassSpec(generateClassSpecFor(context.processingEnv, e))
+        val classSpec = validateClassSpec(generateClassSpecFor(context.processingEnv, e, context.options.jsVerbose))
 
         val methodGenerationInfo = ArrayList<MethodGenerationInfo>()
         //generate method arg classes
@@ -79,11 +80,22 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
 
         context.writeTemplate(context.templates.jsToJavaProxy, generatedFQN, e, vc)
 
-        generateJSStub(classSpec)
+        val a = e.getAnnotation(JSToJavaGenerate::class.java)
+        val classNameOverride = a.value
+
+        val jsClassName = if (classNameOverride.isNotEmpty()) {
+            if (!isValidJSClassName(classNameOverride))
+                throw IllegalArgumentException("JSToJavaGenerate for $fqn was given an invalid js class name")
+            classNameOverride
+        }
+        else
+            classSpec.name
+
+        generateJSStub(classSpec, jsClassName)
     }
 
-    private fun generateJSStub(classSpec: ClassSpec) {
-        val className = classSpec.name
+    private fun generateJSStub(classSpec: ClassSpec, jsClassName: String) {
+        val className = jsClassName
         val jsModuleName = uncamel(className)
         //TODO support packaging based on truncated java pkg maybe?
         val path = File(context.options.jsOutputDir, jsModuleName + ".js")
@@ -170,7 +182,7 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
             vc.put("className", jscallbackName)
             vc.put("functionSig", sig)
             vc.put("retType", retType)
-            vc.put("argType", funcArgs.first())
+            vc.put("argType", funcArgs.firstOrNull())
 
             context.writeTemplate(context.templates.jsCallback, fqn, null, vc)
         }

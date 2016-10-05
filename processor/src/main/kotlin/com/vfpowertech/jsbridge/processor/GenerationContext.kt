@@ -16,6 +16,8 @@ class GenerationContext(
     val templates: Templates
 ) {
     fun logInfo(s: String) {
+        if (!options.jsVerbose)
+            return
         processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, s)
     }
 

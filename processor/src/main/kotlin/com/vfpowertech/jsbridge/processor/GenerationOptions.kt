@@ -9,7 +9,8 @@ data class GenerationOptions(
     val javaToJsProxySubpackageName: String,
     val jsToJavaClassSuffix: String,
     val javaToJSClassSuffix: String,
-    val jsAddModuleExports: Boolean
+    val jsAddModuleExports: Boolean,
+    val jsVerbose: Boolean
 ) {
     companion object {
         //String.toBoolean returns false for anything that isn't true, which isn't nice since it won't throw on typos
@@ -36,6 +37,8 @@ data class GenerationOptions(
 
             val jsAddModuleExports = stringToBoolean(options, "jsAddModuleExports", true)
 
+            val jsVerbose = stringToBoolean(options, "jsVerbose", false)
+
             return GenerationOptions(
                 File(p),
                 pkg,
@@ -43,7 +46,8 @@ data class GenerationOptions(
                 javaToJSProxySubpackageName,
                 jsToJavaClassSuffix,
                 javaToJSClassSuffix,
-                jsAddModuleExports)
+                jsAddModuleExports,
+                jsVerbose)
         }
     }
 }

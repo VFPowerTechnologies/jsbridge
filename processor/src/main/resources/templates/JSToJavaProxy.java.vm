@@ -44,10 +44,10 @@ import static com.vfpowertech.jsbridge.core.dispatcher.Utils.exceptionToJSONStri
 
 @javax.annotation.Generated("jsbridge")
 public final class $className implements com.vfpowertech.jsbridge.core.dispatcher.JSProxy {
-    private Logger log = LoggerFactory.getLogger(${className}.class);
-    private $originalClassName service;
-    private Dispatcher dispatcher;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final Logger log = LoggerFactory.getLogger(${className}.class);
+    private final $originalClassName service;
+    private final Dispatcher dispatcher;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ${className}($originalClassName service, Dispatcher dispatcher) {
         this.service = service;
