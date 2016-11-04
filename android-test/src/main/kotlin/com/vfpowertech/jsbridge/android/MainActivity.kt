@@ -58,7 +58,7 @@ class MainActivity : Activity() {
         val engineInterface = AndroidWebEngineInterface(webview)
         val dispatcher = Dispatcher(engineInterface)
         val testService = com.vfpowertech.jsbridge.core.services.TestService()
-        dispatcher.registerService("TestService", com.vfpowertech.jsbridge.core.services.jstojava.TestServiceToJavaProxy(testService, dispatcher))
+        dispatcher.registerService(com.vfpowertech.jsbridge.core.services.jstojava.TestServiceToJavaProxy(testService, dispatcher))
 
         val jsTestService = com.vfpowertech.jsbridge.core.services.js.javatojs.JSTestServiceToJSProxy(dispatcher)
         findViewById(R.id.runTestsBtn).setOnClickListener {

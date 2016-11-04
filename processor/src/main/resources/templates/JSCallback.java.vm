@@ -22,7 +22,7 @@ public final class $className implements $functionSig {
     private final String callbackId;
     private final Dispatcher dispatcher;
 
-    private $className(String callbackId, Dispatcher dispatcher) {
+    private $className(final String callbackId, final Dispatcher dispatcher) {
         this.callbackId = callbackId;
         this.dispatcher = dispatcher;
     }
@@ -30,17 +30,17 @@ public final class $className implements $functionSig {
     @Override
     public $retType invoke(
     #if($argType)
-    ${argType} arg0
+    final ${argType} arg0
     #end
     ) {
         //hack to bypass checked exceptions
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
+            final ObjectMapper objectMapper = new ObjectMapper();
             #if($argType)
-            String json = objectMapper.writeValueAsString(arg0);
-            dispatcher.sendValueBackToJS(callbackId, json, false);
+            final String json = objectMapper.writeValueAsString(arg0);
+            dispatcher.sendValueBackToJS(callbackId, json, false, null, null);
             #else
-            dispatcher.sendValueBackToJS(callbackId, null, false);
+            dispatcher.sendValueBackToJS(callbackId, null, false, null, null);
             #end
         }
         catch (Exception e) {

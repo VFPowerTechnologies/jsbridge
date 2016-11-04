@@ -70,26 +70,27 @@ class JSToJavaCodeGenerator(private val context: GenerationContext) {
             methodGenerationInfo.add(genInfo)
         }
 
+        val a = e.getAnnotation(JSToJavaGenerate::class.java)
+        val jsClassNameOverride = a.value
+
+        val jsClassName = if (jsClassNameOverride.isNotEmpty()) {
+            if (!isValidJSClassName(jsClassNameOverride))
+                throw IllegalArgumentException("JSToJavaGenerate for $fqn was given an invalid js class name")
+            jsClassNameOverride
+        }
+        else
+            classSpec.name
+
         //generate js->java proxy
         val vc = VelocityContext()
         vc.put("package", generatedPackage)
         vc.put("className", generatedClassName)
+        vc.put("jsClassName", jsClassName)
         vc.put("originalFDQN", fqn)
         vc.put("originalClassName", className)
         vc.put("methods", methodGenerationInfo)
 
         context.writeTemplate(context.templates.jsToJavaProxy, generatedFQN, e, vc)
-
-        val a = e.getAnnotation(JSToJavaGenerate::class.java)
-        val classNameOverride = a.value
-
-        val jsClassName = if (classNameOverride.isNotEmpty()) {
-            if (!isValidJSClassName(classNameOverride))
-                throw IllegalArgumentException("JSToJavaGenerate for $fqn was given an invalid js class name")
-            classNameOverride
-        }
-        else
-            classSpec.name
 
         generateJSStub(classSpec, jsClassName)
     }

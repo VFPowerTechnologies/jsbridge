@@ -15,7 +15,13 @@ class Dispatcher(private val engine: WebEngineInterface) {
         engine.register(this)
     }
 
+    fun registerService(service: JSProxy) {
+        registerService(service.name, service)
+    }
+
     fun registerService(serviceName: String, service: JSProxy) {
+        if (serviceName in services)
+            throw RuntimeException("The service name $serviceName is already registered")
         services[serviceName] = service
     }
 
@@ -23,9 +29,8 @@ class Dispatcher(private val engine: WebEngineInterface) {
         return services.remove(serviceName) != null
     }
 
-    /** Clears all pending promises and callback ids. */
+    /** Clears all pending promises. Callback ids aren't reset to avoid clashes with previously set ids. */
     fun resetState() {
-        nextCallbackId = 0
         pendingPromises.clear()
     }
 
@@ -49,10 +54,17 @@ class Dispatcher(private val engine: WebEngineInterface) {
         service.call(methodName, methodArgs, callbackId)
     }
 
-    fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean) {
-        log.trace("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
+    fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean, serviceName: String?, methodName: String?) {
+        val (serviceInfo, jsServiceInfo) = if (serviceName != null && methodName != null) {
+            val info = "$serviceName.$methodName"
+            " ($info)" to "\"$info\""
+        }
+        else
+            "" to "null"
+
+        log.trace("Dispatching <<<{}>>> for callbackId={}{}", json, callbackId, serviceInfo)
         //this embeds the json as object directly, so we don't need to bother deserializing it on the js side
-        engine.runJS("window.dispatcher.sendValueToCallback(\"$callbackId\", $isError, $json);")
+        engine.runJS("window.dispatcher.sendValueToCallback(\"$callbackId\", $isError, $json, $jsServiceInfo);")
     }
 
     //target: something like window.service
