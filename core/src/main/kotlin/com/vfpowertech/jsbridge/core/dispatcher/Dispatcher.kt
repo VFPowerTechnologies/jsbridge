@@ -15,7 +15,13 @@ class Dispatcher(private val engine: WebEngineInterface) {
         engine.register(this)
     }
 
+    fun registerService(service: JSProxy) {
+        registerService(service.name, service)
+    }
+
     fun registerService(serviceName: String, service: JSProxy) {
+        if (serviceName in services)
+            throw RuntimeException("The service name $serviceName is already registered")
         services[serviceName] = service
     }
 

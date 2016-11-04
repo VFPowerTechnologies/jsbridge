@@ -59,6 +59,11 @@ public final class $className implements com.vfpowertech.jsbridge.core.dispatche
     }
 
     @Override
+    public String getName() {
+        return "$jsClassName";
+    }
+
+    @Override
     public void call(String methodName, String methodArgs, final String callbackId) {
     #foreach($m in $methods)
         if (methodName.equals("${m.name}")) {
