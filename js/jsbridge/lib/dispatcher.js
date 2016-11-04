@@ -38,6 +38,8 @@ Dispatcher.prototype.handleCallFromNative = function (serviceName, methodName, m
     var args = methodArgs;
     this._logInfo(serviceName + "." + methodName + "(" + args + ") (" + callbackId + ")");
 
+    console.log('serviceInfo: ' + serviceInfo);
+
     //TODO maybe have variants for sync and async fns
     //for sync, just run the fun and send data back
     var resolve = function (v) {
@@ -80,13 +82,13 @@ Dispatcher.prototype.handleCallFromNative = function (serviceName, methodName, m
     }
 }
 
-Dispatcher.prototype.sendValueToCallback = function (callbackId, isError, value) {
-    this._logInfo("Received " + value + " for callbackId=" + callbackId)
+Dispatcher.prototype.sendValueToCallback = function (callbackId, isError, value, serviceInfo) {
+    this._logInfo("Received " + JSON.stringify(value) + " for callbackId=" + callbackId + '; serviceInfo=' + serviceInfo)
 
     //TODO if a listener, reject can be null, so maybe check and emit a warning?
     var r = this._callbacks[callbackId];
     if (!r) {
-        console.error('Unable to send value as callbackId=' + callbackId + ' no longer exists');
+        console.error('Unable to send value as callbackId=' + callbackId + ' no longer exists; serviceInfo=' + serviceInfo);
         return;
     }
     var resolve = r[0];

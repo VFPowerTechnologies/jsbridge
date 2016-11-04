@@ -28,14 +28,16 @@ import static com.vfpowertech.jsbridge.core.dispatcher.Utils.exceptionToJSONStri
         #else
         null,
         #end
-        false
+        false,
+        getName(),
+        methodName
     );
 #end
 
 #macro(sendExceptionToJS)
     try {
         String json = exceptionToJSONString(e);
-        dispatcher.sendValueBackToJS(callbackId, json, true);
+        dispatcher.sendValueBackToJS(callbackId, json, true, getName(), methodName);
     }
     catch (Exception e2) {
         log.error("Unable to serialize exception for callbackId={}: {}", callbackId, e2.getMessage(), e2);
@@ -49,7 +51,7 @@ public final class $className implements com.vfpowertech.jsbridge.core.dispatche
     private final Dispatcher dispatcher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ${className}($originalClassName service, Dispatcher dispatcher) {
+    public ${className}(final $originalClassName service, final Dispatcher dispatcher) {
         this.service = service;
         this.dispatcher = dispatcher;
 
@@ -64,7 +66,7 @@ public final class $className implements com.vfpowertech.jsbridge.core.dispatche
     }
 
     @Override
-    public void call(String methodName, String methodArgs, final String callbackId) {
+    public void call(final String methodName, final String methodArgs, final String callbackId) {
     #foreach($m in $methods)
         if (methodName.equals("${m.name}")) {
             #if($m.hasArgs)

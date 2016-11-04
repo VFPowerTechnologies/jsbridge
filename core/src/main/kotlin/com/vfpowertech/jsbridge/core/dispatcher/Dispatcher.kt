@@ -55,10 +55,17 @@ class Dispatcher(private val engine: WebEngineInterface) {
         service.call(methodName, methodArgs, callbackId)
     }
 
-    fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean) {
-        log.trace("Dispatching <<<{}>>> for callbackId={}", json, callbackId)
+    fun sendValueBackToJS(callbackId: String, json: String?, isError: Boolean, serviceName: String?, methodName: String?) {
+        val (serviceInfo, jsServiceInfo) = if (serviceName != null && methodName != null) {
+            val info = "$serviceName.$methodName"
+            " ($info)" to "\"$info\""
+        }
+        else
+            "" to "null"
+
+        log.trace("Dispatching <<<{}>>> for callbackId={}{}", json, callbackId, serviceInfo)
         //this embeds the json as object directly, so we don't need to bother deserializing it on the js side
-        engine.runJS("window.dispatcher.sendValueToCallback(\"$callbackId\", $isError, $json);")
+        engine.runJS("window.dispatcher.sendValueToCallback(\"$callbackId\", $isError, $json, $jsServiceInfo);")
     }
 
     //target: something like window.service
