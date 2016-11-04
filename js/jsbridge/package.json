@@ -1,6 +1,6 @@
 {
   "name": "jsbridge",
-  "version": "0.2.0-SNAPSHOT",
+  "version": "0.3.0",
   "description": "JS <-> JVM Bridge",
   "author": "Kevin Tardif <kevin@vfpowertech.com>",
   "license": "UNLICENSED",
