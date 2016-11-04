@@ -83,7 +83,7 @@ Dispatcher.prototype.handleCallFromNative = function (serviceName, methodName, m
 }
 
 Dispatcher.prototype.sendValueToCallback = function (callbackId, isError, value, serviceInfo) {
-    this._logInfo("Received " + JSON.stringify(value) + " for callbackId=" + callbackId + '; serviceInfo=' + serviceInfo)
+    this._logInfo("Received value for callbackId=" + callbackId + '; serviceInfo=' + serviceInfo)
 
     //TODO if a listener, reject can be null, so maybe check and emit a warning?
     var r = this._callbacks[callbackId];
