@@ -85,6 +85,10 @@ Dispatcher.prototype.sendValueToCallback = function (callbackId, isError, value)
 
     //TODO if a listener, reject can be null, so maybe check and emit a warning?
     var r = this._callbacks[callbackId];
+    if (!r) {
+        console.error('Unable to send value as callbackId=' + callbackId + ' no longer exists');
+        return;
+    }
     var resolve = r[0];
     var reject = r[1];
     var remove = r[2];
