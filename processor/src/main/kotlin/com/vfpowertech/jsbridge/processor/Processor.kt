@@ -6,18 +6,14 @@ import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.RuntimeConstants
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import java.util.*
-import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.RoundEnvironment
-import javax.annotation.processing.SupportedAnnotationTypes
-import javax.annotation.processing.SupportedOptions
-import javax.annotation.processing.SupportedSourceVersion
+import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic
 
 @SupportedAnnotationTypes(
-    "com.vfpowertech.jsbridge.processor.annotations.Generate",
-    "com.vfpowertech.jsbridge.processor.annotations.JSGenerate"
+    "com.vfpowertech.jsbridge.processor.annotations.JavaToJSGenerate",
+    "com.vfpowertech.jsbridge.processor.annotations.JStoJavaGenerate"
 )
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedOptions(
