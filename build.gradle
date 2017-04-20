@@ -1,19 +1,15 @@
 group 'com.vfpowertech'
-version '0.3.1'
+version '0.4.0'
 
 buildscript {
     ext {
         versions = [
-            kotlin: '1.0.3',
+            kotlin: '1.1.1',
             jackson: '2.8.1',
             slf4j: '1.7.15',
             logbackClassic: '1.1.3',
             kovenant: '3.3.0',
             roboVM: '1.13.0',
-            androidGradle: '2.1.0',
-            androidMavenGradle: '1.3',
-            androidBuildTools: '23.0.3',
-            androidCompileSdk: 23,
         ]
     }
 }
@@ -23,9 +19,7 @@ def projectsToPublish = [
     ':processor',
     ':processor-annotations',
     ':desktop-webengine',
-    ':ios-webengine',
-    //see android-webengine's build.gradle for android config
-    //':android-webengine',
+    //':ios-webengine',
 ].collect { project(it) }
 
 configure(projectsToPublish) {

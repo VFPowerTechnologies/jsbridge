@@ -9,32 +9,19 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 
-
-import java.nio.file.*
-
 apply plugin: 'idea'
 
-//hack to give IDE access to generated files
-if (!System.getProperty('os.name').toLowerCase().startsWith('windows')) {
-    Path linkLocation = new File("$projectDir/generated").toPath()
-    Path linkTarget = new File("$buildDir/generated/source/kapt/main").toPath()
-    if (!Files.exists(linkLocation, LinkOption.NOFOLLOW_LINKS)) {
-        Files.createSymbolicLink(linkLocation, linkTarget)
-    }
-
-    idea {
-        module {
-            sourceDirs += file('generated')
-            generatedSourceDirs += file('generated')
-        }
+idea {
+    module {
+        sourceDirs += file('build/generated/source/kapt/main')
     }
 }
 
 kapt {
-    generateStubs = true
     arguments {
         arg('jsOutputDir', "$rootProject.projectDir/web/js/jvm-service")
         arg('jsCallbackPackage', 'com.vfpowertech.jsbridge.core.services.jscallback')
@@ -45,8 +32,6 @@ dependencies {
     compile project(':core')
     kapt project(':processor')
     compile project(':processor-annotations')
-    //else stuff doesn't get recompiled since kapt doesn't seem to check
-    //compile project(':processor')
 
     compile "org.jetbrains.kotlin:kotlin-test:$versions.kotlin"
 }
