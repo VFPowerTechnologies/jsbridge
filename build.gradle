@@ -10,10 +10,6 @@ buildscript {
             logbackClassic: '1.1.3',
             kovenant: '3.3.0',
             roboVM: '1.13.0',
-            androidGradle: '2.2.3',
-            androidMavenGradle: '1.5',
-            androidBuildTools: '23.0.3',
-            androidCompileSdk: 23,
         ]
     }
 }
@@ -24,8 +20,6 @@ def projectsToPublish = [
     ':processor-annotations',
     ':desktop-webengine',
     //':ios-webengine',
-    //see android-webengine's build.gradle for android config
-    ':android-webengine',
 ].collect { project(it) }
 
 configure(projectsToPublish) {
